@@ -12,6 +12,7 @@ import Garansi from "./pages/Garansi";
 import KlaimGaransi from "./pages/KlaimGaransi";
 import DaftarAkun from "./pages/DaftarAkun";
 import PengaturanAkun from "./pages/PengaturanAkun";
+import StokLensa from "./pages/StokLensa";
 
 function App() {
   return (
@@ -47,6 +48,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DataLensa />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="data-lensa/:id"
+            element={
+              <ProtectedRoute>
+                <StokLensa />
               </ProtectedRoute>
             }
           />
