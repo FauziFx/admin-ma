@@ -9,9 +9,6 @@ const Navbar = () => {
         <li className="nav-item dropdown">
           <a className="nav-link" data-toggle="dropdown" href="#">
             <i className="far fa-user" />
-            <span className="badge badge-danger navbar-badge">
-              <i className="fas fa-sign-out-alt fa-sm "></i>
-            </span>
           </a>
           <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
             <a href="#" className="dropdown-item">

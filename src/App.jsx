@@ -1,13 +1,17 @@
 import Navbar from "./components/Navbar";
-import Dashboard from "./pages/Dashboard";
 import SideNav from "./components/SideNav";
 import Footer from "./components/Footer";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import Page from "./pages/Page";
-import Login from "./pages/Login";
-import Page1 from "./pages/Page1";
-import Page2 from "./pages/Page2";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import StokLensa from "./pages/StokLensa";
+import Pasien from "./pages/Pasien";
+import RekamMedis from "./pages/RekamMedis";
+import Garansi from "./pages/Garansi";
+import KlaimGaransi from "./pages/KlaimGaransi";
+import DaftarAkun from "./pages/DaftarAkun";
+import PengaturanAkun from "./pages/PengaturanAkun";
 
 function App() {
   return (
@@ -39,26 +43,58 @@ function App() {
             }
           />
           <Route
-            path="page"
+            path="stok-lensa"
             element={
               <ProtectedRoute>
-                <Page />
+                <StokLensa />
               </ProtectedRoute>
             }
           />
           <Route
-            path="page1"
+            path="pasien"
             element={
               <ProtectedRoute>
-                <Page1 />
+                <Pasien />
               </ProtectedRoute>
             }
           />
           <Route
-            path="page2"
+            path="rekam-medis"
             element={
               <ProtectedRoute>
-                <Page2 />
+                <RekamMedis />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="garansi"
+            element={
+              <ProtectedRoute>
+                <Garansi />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="klaim-garansi"
+            element={
+              <ProtectedRoute>
+                <KlaimGaransi />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="daftar-akun"
+            element={
+              <ProtectedRoute>
+                <DaftarAkun />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="pengaturan-akun"
+            element={
+              <ProtectedRoute>
+                <PengaturanAkun />
               </ProtectedRoute>
             }
           />

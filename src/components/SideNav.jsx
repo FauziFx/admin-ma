@@ -15,20 +15,45 @@ const SideNav = () => {
     },
     {
       id: 2,
-      title: "Dropdown",
-      url: "",
-      icon: "fa-table",
-      dropdown: [
-        { title: "Page 1", url: "page1" },
-        { title: "Page 2", url: "page2" },
-      ],
+      title: "Stok Lensa",
+      url: "stok-lensa",
+      icon: "fa-database",
       clicked: false,
     },
     {
       id: 3,
-      title: "Page",
-      url: "page",
-      icon: "fa-file-code",
+      title: "Rekam Medis",
+      url: "",
+      icon: "fa-user-md",
+      dropdown: [
+        { title: "Data Pasien", url: "pasien" },
+        { title: "Data Rekam Medis", url: "rekam-medis" },
+      ],
+      clicked: false,
+    },
+    {
+      id: 4,
+      title: "Garansi",
+      url: "",
+      icon: "fa-certificate",
+      dropdown: [
+        { title: "Data Garansi", url: "garansi" },
+        { title: "Data Klaim Garansi", url: "klaim-garansi" },
+      ],
+      clicked: false,
+    },
+    {
+      id: 5,
+      title: "Daftar Akun",
+      url: "daftar-akun",
+      icon: "fa-list-alt",
+      clicked: false,
+    },
+    {
+      id: 6,
+      title: "Pengaturan Akun",
+      url: "pengaturan-akun",
+      icon: "fa-cog",
       clicked: false,
     },
   ]);
@@ -58,7 +83,7 @@ const SideNav = () => {
     return (
       <>
         <a
-          href={"#" + title}
+          href={"#" + title.replace(/ /g, "")}
           data-toggle="collapse"
           aria-expanded="false"
           className={isActive ? "nav-link active" : "nav-link"}
@@ -70,7 +95,7 @@ const SideNav = () => {
             <i className="right fa fa-chevron-down"></i>
           </p>
         </a>
-        <div id={title} className="collapse">
+        <div id={title.replace(/ /g, "")} className="collapse">
           <ul className="">
             {dropdown.map((item, index) => (
               <li className="nav-item text-light" key={index}>

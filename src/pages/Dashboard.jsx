@@ -29,7 +29,7 @@ const Dashboard = () => {
                     <p className="lead">
                       <Link
                         className="btn btn-primary btn-lg"
-                        to="/stoklensa"
+                        to="/stok-lensa"
                         role="button"
                       >
                         Stok Lensa
