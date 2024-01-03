@@ -47,6 +47,7 @@ const StokLensa = () => {
                     columns={columns}
                     data={data}
                     pagination
+                    customStyles={tableCustomStyles}
                     highlightOnHover
                   />
                 </div>
@@ -57,6 +58,17 @@ const StokLensa = () => {
       </div>
     </div>
   );
+};
+
+const tableCustomStyles = {
+  headCells: {
+    style: {
+      fontSize: "16px",
+      fontWeight: "bold",
+      padding: "0 18px",
+      backgroundColor: "#ebebeb",
+    },
+  },
 };
 
 export default StokLensa;
