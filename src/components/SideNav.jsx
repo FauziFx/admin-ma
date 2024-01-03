@@ -15,8 +15,8 @@ const SideNav = () => {
     },
     {
       id: 2,
-      title: "Stok Lensa",
-      url: "stok-lensa",
+      title: "Data Lensa",
+      url: "data-lensa",
       icon: "fa-database",
       clicked: false,
     },

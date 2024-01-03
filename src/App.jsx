@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import StokLensa from "./pages/StokLensa";
+import DataLensa from "./pages/DataLensa";
 import Pasien from "./pages/Pasien";
 import RekamMedis from "./pages/RekamMedis";
 import Garansi from "./pages/Garansi";
@@ -43,10 +43,10 @@ function App() {
             }
           />
           <Route
-            path="stok-lensa"
+            path="data-lensa"
             element={
               <ProtectedRoute>
-                <StokLensa />
+                <DataLensa />
               </ProtectedRoute>
             }
           />

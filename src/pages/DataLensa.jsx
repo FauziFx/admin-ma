@@ -6,7 +6,7 @@ import DataTable from "react-data-table-component";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const StokLensa = () => {
+const DataLensa = () => {
   useDocumentTitle("Stok lensa");
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -43,7 +43,7 @@ const StokLensa = () => {
 
   return (
     <div className="content-wrapper">
-      <Breadcrumb title="Stok Lensa" />
+      <Breadcrumb title="Data Lensa" />
       {/* Main Content */}
       <div className="content">
         <div className="container-fluid">
@@ -79,4 +79,4 @@ const tableCustomStyles = {
   },
 };
 
-export default StokLensa;
+export default DataLensa;
