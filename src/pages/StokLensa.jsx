@@ -4,10 +4,13 @@ import useDocumentTitle from "../utils/useDocumentTitle";
 import Breadcrumb from "../components/Breadcrumb";
 import DataTable from "react-data-table-component";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const StokLensa = () => {
   useDocumentTitle("Stok lensa");
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
+
   const columns = [
     {
       name: "Nama Lensa",
@@ -24,14 +27,19 @@ const StokLensa = () => {
             Authorization: localStorage.getItem("user-token"),
           },
         });
-        setData(response.data.data);
+        if (response.data.success) {
+          setData(response.data.data);
+        } else {
+          localStorage.clear();
+          return navigate("/login");
+        }
       } catch (error) {
         console.log(error);
       }
     };
 
     getData();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="content-wrapper">
