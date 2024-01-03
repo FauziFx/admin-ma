@@ -10,6 +10,8 @@ const DataLensa = () => {
   useDocumentTitle("Stok lensa");
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState([]);
 
   const columns = [
     {
@@ -29,6 +31,7 @@ const DataLensa = () => {
         });
         if (response.data.success) {
           setData(response.data.data);
+          setFilter(response.data.data);
         } else {
           localStorage.clear();
           return navigate("/login");
@@ -41,6 +44,15 @@ const DataLensa = () => {
     getData();
   }, [navigate]);
 
+  useEffect(() => {
+    const result = data.filter((item) => {
+      return item.product_name
+        .toLowerCase()
+        .includes(search.toLocaleLowerCase());
+    });
+    setFilter(result);
+  }, [data, search]);
+
   return (
     <div className="content-wrapper">
       <Breadcrumb title="Data Lensa" />
@@ -50,10 +62,20 @@ const DataLensa = () => {
           <div className="row">
             <div className="col-lg-12">
               <div className="card">
+                <div className="card-header">
+                  <input
+                    type="text"
+                    className="form-control form-control"
+                    placeholder="Cari Disini..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    autoFocus
+                  />
+                </div>
                 <div className="card-body">
                   <DataTable
                     columns={columns}
-                    data={data}
+                    data={filter}
                     pagination
                     customStyles={tableCustomStyles}
                     highlightOnHover
