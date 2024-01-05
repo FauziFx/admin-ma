@@ -6,7 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const DataLensa = () => {
-  useDocumentTitle("Stok lensa");
+  useDocumentTitle("Data Lensa");
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
