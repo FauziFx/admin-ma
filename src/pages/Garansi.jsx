@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Breadcrumb from "../components/Breadcrumb";
 import useDocumentTitle from "../utils/useDocumentTitle";
 import axios from "axios";
@@ -10,6 +10,7 @@ const Garansi = () => {
   useDocumentTitle("Data Garansi");
   const navigate = useNavigate();
   const URL = import.meta.env.VITE_API_URL;
+  const closeModal = useRef(null);
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
@@ -24,19 +25,28 @@ const Garansi = () => {
     tanggal: "",
     data_klaim: [],
   });
+  const [klaim, setKlaim] = useState({
+    tanggal: "",
+    garansi_id: 0,
+    nama: "",
+    frame: "",
+    lensa: "",
+    jenis_garansi: "",
+    kerusakan: "",
+    perbaikan: "",
+  });
 
   const columns = [
     {
-      name: <div>Tanggal</div>,
+      name: "Tanggal",
       selector: (row) => moment.utc(row.tanggal).format("DD/MM/YYYY"),
-      width: "fit-content",
     },
     {
       name: "Optik/Armada",
       selector: () => "INDAH MA", //sementara
     },
     {
-      name: <div className="ml-1 w-100">Nama</div>,
+      name: "Nama",
       selector: (row) => row.nama.toUpperCase(),
     },
     {
@@ -45,19 +55,19 @@ const Garansi = () => {
     },
     {
       name: "Action",
-      width: "fit-content",
+      width: "auto",
       selector: (row) => (
         <>
           <button
-            // onClick={() =>
-            //   setKlaim({
-            //     tanggal: moment().locale("ID").format("YYYY-MM-DD"),
-            //     garansi_id: row.id,
-            //     nama: row.nama.toUpperCase(),
-            //     frame: row.frame.toUpperCase(),
-            //     lensa: row.lensa.toUpperCase(),
-            //   })
-            // }
+            onClick={() =>
+              setKlaim({
+                tanggal: moment().locale("ID").format("YYYY-MM-DD"),
+                garansi_id: row.id,
+                nama: row.nama.toUpperCase(),
+                frame: row.frame.toUpperCase(),
+                lensa: row.lensa.toUpperCase(),
+              })
+            }
             className="btn btn-xs btn-success mr-1"
             data-toggle="modal"
             data-target="#modal-klaim"
@@ -159,6 +169,48 @@ const Garansi = () => {
     return b.isAfter(a); // True = expired, False = Active
   };
 
+  const handleChange = async (e) => {
+    setKlaim((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const submitKlaim = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(URL + "api/garansi/klaim", {
+        garansi_id: klaim.garansi_id,
+        jenis_garansi: klaim.jenis_garansi,
+        kerusakan: klaim.kerusakan,
+        perbaikan: klaim.perbaikan,
+        tanggal: klaim.tanggal,
+      });
+      alert("Data Berhasil disimpan!");
+      console.log(response);
+      getData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleClose = async () => {
+    closeModal.current.click();
+
+    setInterval(() => {
+      setKlaim({
+        tanggal: "",
+        garansi_id: 0,
+        nama: "",
+        frame: "",
+        lensa: "",
+        jenis_garansi: "",
+        kerusakan: "",
+        perbaikan: "",
+      });
+    }, 2000);
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -225,6 +277,11 @@ const Garansi = () => {
                     <td>Tanggal</td>
                     <td>:&nbsp;</td>
                     <td>{moment.utc(detail.tanggal).format("DD/MM/YYYY")}</td>
+                  </tr>
+                  <tr>
+                    <td>Optik</td>
+                    <td>:</td>
+                    <td>{detail.nama.toUpperCase()}</td>
                   </tr>
                   <tr>
                     <td>Nama</td>
@@ -387,6 +444,140 @@ const Garansi = () => {
           {/* Modal Content */}
         </div>
         {/* Modal Dialog */}
+      </div>
+
+      {/* Moal Klaim */}
+      <div
+        className="modal fade"
+        id="modal-klaim"
+        data-keyboard="false"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Klaim Garansi</h4>
+            </div>
+            <form action="" onSubmit={submitKlaim}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label htmlFor="">Tanggal :</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={klaim.tanggal}
+                    name="tanggal"
+                    onChange={(e) => handleChange(e)}
+                  />
+                </div>
+                <table className="table table-sm">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <b>Nama</b>
+                      </td>
+                      <td>:</td>
+                      <td>{klaim.nama}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Frame</b>
+                      </td>
+                      <td>:</td>
+                      <td>{klaim.frame}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Lensa</b>
+                      </td>
+                      <td>:</td>
+                      <td>{klaim.lensa}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className="form-group">
+                  <label htmlFor="">Jenis Garansi :</label>
+                  <select
+                    name="jenis_garansi"
+                    id=""
+                    className="form-control"
+                    onChange={(e) => handleChange(e)}
+                    value={klaim.jenis_garansi}
+                    required
+                  >
+                    <option value="">- Jenis Garansi</option>
+                    <option value="lensa">Lensa</option>
+                    <option value="frame">Frame</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="">Kerusakan :</label>
+                  <textarea
+                    name="kerusakan"
+                    id=""
+                    cols="30"
+                    rows="2"
+                    className="form-control"
+                    placeholder="Rusaknya apa?"
+                    onChange={(e) => handleChange(e)}
+                    value={klaim.kerusakan}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="">Perbaikan :</label>
+                  <textarea
+                    name="perbaikan"
+                    id=""
+                    cols="30"
+                    rows="2"
+                    className="form-control"
+                    placeholder="Solusinya gimana?/Frame apa?/Lensa apa?"
+                    required
+                    onChange={(e) => handleChange(e)}
+                    value={klaim.perbaikan}
+                  />
+                </div>
+                <div style={{ fontSize: "11px" }}>
+                  Syarat dan Ketentuan Garansi:
+                  <ul className="pl-3">
+                    <li>
+                      Garansi berlaku atas pengelupasan lapisan anti refleksi.
+                    </li>
+                    <li>
+                      Garansi tidak berlaku atas kerusakan yang diakibatkan oleh
+                      benturan/goresan benda keras, bahan kimia, atau suhu
+                      panas.
+                    </li>
+                    <li>
+                      Klaim atas garansi hanya berlaku dengan menunjukan kartu
+                      garansi
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="modal-footer justify-content-between">
+                <button
+                  onClick={() => handleClose()}
+                  ref={closeModal}
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  onClick={() => handleClose()}
+                  className="btn btn-primary"
+                >
+                  Klaim
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
