@@ -81,6 +81,13 @@ const KlaimGaransi = () => {
     getData();
   }, []);
 
+  useEffect(() => {
+    const result = data.filter((item) => {
+      return item.nama.toLowerCase().includes(search.toLocaleLowerCase());
+    });
+    setFilter(result);
+  }, [data, search]);
+
   return (
     <div className="content-wrapper">
       <Breadcrumb title="Data Klaim Garansi" />
