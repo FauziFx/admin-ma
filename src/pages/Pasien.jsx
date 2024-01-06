@@ -88,7 +88,7 @@ const Pasien = () => {
 
   const handleClose = async () => {
     closeModalPasien.current.click();
-    // closeModalAll.current.click();
+    closeModalAll.current.click();
 
     setTimeout(() => {
       setPasien({
@@ -137,14 +137,17 @@ const Pasien = () => {
     {
       name: "Tanggal",
       selector: (row) => moment.utc(row.tanggal).format("DD/MM/YYYY"),
+      sortable: true,
     },
     {
       name: "Nama",
       selector: (row) => row.nama.toUpperCase(),
+      sortable: true,
     },
     {
       name: "Alamat",
       selector: (row) => row.alamat.toUpperCase(),
+      sortable: true,
     },
     {
       name: "Action",
@@ -212,6 +215,92 @@ const Pasien = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const submitUkuranLama = async (pasien_id) => {
+    try {
+      const od = [
+        ukuranLama.rsph,
+        ukuranLama.rcyl,
+        ukuranLama.raxis,
+        ukuranLama.radd,
+      ].join("/");
+      const os = [
+        ukuranLama.lsph,
+        ukuranLama.lcyl,
+        ukuranLama.laxis,
+        ukuranLama.ladd,
+      ].join("/");
+      const response = await axios.post(
+        URL + "api/rekam",
+        {
+          od: od,
+          os: os,
+          pd_jauh: parseInt(ukuranLama.pd_jauh),
+          pd_dekat: parseInt(ukuranLama.pd_dekat),
+          keterangan: ukuranLama.keterangan,
+          ukuran_lama: "y",
+          pasien_id: pasien_id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("user-token"),
+          },
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const submitUkuranbaru = async (pasien_id) => {
+    try {
+      const od = [
+        ukuranBaru.rsph,
+        ukuranBaru.rcyl,
+        ukuranBaru.raxis,
+        ukuranBaru.radd,
+      ].join("/");
+      const os = [
+        ukuranBaru.lsph,
+        ukuranBaru.lcyl,
+        ukuranBaru.laxis,
+        ukuranBaru.ladd,
+      ].join("/");
+
+      const response = await axios.post(
+        URL + "api/rekam",
+        {
+          od: od,
+          os: os,
+          pd_jauh: parseInt(ukuranBaru.pd_jauh),
+          pd_dekat: parseInt(ukuranBaru.pd_dekat),
+          tanggal_periksa: ukuranBaru.tanggal_periksa,
+          pemeriksa: ukuranBaru.pemeriksa,
+          keterangan: ukuranBaru.keterangan,
+          pasien_id: pasien_id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("user-token"),
+          },
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const submitRekamMedis = async (e) => {
+    e.preventDefault();
+    const pasien_id = await submitPasien(e);
+
+    await submitUkuranbaru(pasien_id);
+    if (ukuranLama.rsph.length !== 0) {
+      await submitUkuranLama(pasien_id);
+    }
+    alert("Data Berhasil Disimpan...!");
+    await getData();
   };
 
   const getData = async () => {
@@ -540,6 +629,446 @@ const Pasien = () => {
                     }
                   >
                     Next <i className="fas fa-chevron-right fa-xs"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          {/* Modal Content */}
+        </div>
+        {/* Modal Dialog */}
+      </div>
+
+      {/* Modal Ukuran Lama */}
+      <div
+        className="modal fade"
+        id="modal-ukuran-lama"
+        data-keyboard="false"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Ukuran Kacamata Lama</h4>
+            </div>
+            <form action="post">
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-1 pt-1 text-bold">OD</div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.rsph}
+                      type="text"
+                      className="form-control"
+                      placeholder="SPH"
+                      name="rsph"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.rcyl}
+                      type="text"
+                      className="form-control"
+                      placeholder="CYL"
+                      name="rcyl"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.raxis}
+                      type="text"
+                      className="form-control"
+                      placeholder="AXIS"
+                      name="raxis"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.radd}
+                      type="text"
+                      className="form-control"
+                      placeholder="ADD"
+                      name="radd"
+                    />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-1 pt-1 text-bold">OS</div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.lsph}
+                      type="text"
+                      className="form-control"
+                      placeholder="SPH"
+                      name="lsph"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.lcyl}
+                      type="text"
+                      className="form-control"
+                      placeholder="CYL"
+                      name="lcyl"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.laxis}
+                      type="text"
+                      className="form-control"
+                      placeholder="AXIS"
+                      name="laxis"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.ladd}
+                      type="text"
+                      className="form-control"
+                      placeholder="ADD"
+                      name="ladd"
+                    />
+                  </div>
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    PD :
+                  </label>
+                  <div className="row">
+                    <div className="col">
+                      <div className="form-group">
+                        <input
+                          onChange={(e) => handleChangeUkuranLama(e)}
+                          value={ukuranLama.pd_jauh}
+                          type="text"
+                          className="form-control"
+                          placeholder="PD Jauh"
+                          name="pd_jauh"
+                        />
+                      </div>
+                    </div>
+                    <div className="col">
+                      <div className="form-group">
+                        <input
+                          onChange={(e) => handleChangeUkuranLama(e)}
+                          value={ukuranLama.pd_dekat}
+                          type="text"
+                          className="form-control"
+                          placeholder="PD Dekat"
+                          name="pd_dekat"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="">Keluhan :</label>
+                  <textarea
+                    onChange={(e) => handleChangeUkuranLama(e)}
+                    value={ukuranLama.keterangan}
+                    name="keterangan"
+                    className="form-control"
+                    id=""
+                    cols="30"
+                    rows="2"
+                    placeholder="Keluhan / Keterangan lain"
+                  ></textarea>
+                </div>
+              </div>
+              <div className="modal-footer justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
+                  data-toggle="modal"
+                  data-target="#modal-tambah"
+                >
+                  Back
+                </button>
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary ml-1"
+                    data-dismiss="modal"
+                    data-toggle="modal"
+                    data-target="#modal-ukuran-baru"
+                    onClick={() => {
+                      setUkuranLama({
+                        rsph: "",
+                        rcyl: "",
+                        raxis: "",
+                        radd: "",
+                        lsph: "",
+                        lcyl: "",
+                        laxis: "",
+                        ladd: "",
+                        pd_jauh: "",
+                        pd_dekat: "",
+                        keterangan: "",
+                      });
+                      setUkuranBaru((ukuranBaru) => ({
+                        ...ukuranBaru,
+                        ...{
+                          tanggal_periksa: moment()
+                            .locale("id")
+                            .format("YYYY-MM-DD"),
+                        },
+                      }));
+                    }}
+                    disabled={
+                      ukuranLama.rsph.length !== 0 &&
+                      ukuranLama.lsph.length !== 0
+                    }
+                  >
+                    Skip
+                  </button>
+                  <button
+                    className="btn btn-primary ml-1"
+                    data-dismiss="modal"
+                    data-toggle="modal"
+                    data-target="#modal-ukuran-baru"
+                    disabled={
+                      ukuranLama.rsph.length === 0 ||
+                      ukuranLama.lsph.length === 0
+                    }
+                    onClick={() =>
+                      setUkuranBaru((ukuranBaru) => ({
+                        ...ukuranBaru,
+                        ...{
+                          tanggal_periksa: moment()
+                            .locale("id")
+                            .format("YYYY-MM-DD"),
+                        },
+                      }))
+                    }
+                  >
+                    Next <i className="fas fa-chevron-right fa-xs"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          {/* Modal Content */}
+        </div>
+        {/* Modal Dialog */}
+      </div>
+
+      {/* Modal Ukuran Baru */}
+      <div
+        className="modal fade"
+        id="modal-ukuran-baru"
+        data-keyboard="false"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Ukuran Kacamata Baru</h4>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+                ref={closeModalAll}
+              ></button>
+            </div>
+            <form action="post" onSubmit={submitRekamMedis}>
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-1 pt-1 text-bold">OD</div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.rsph}
+                      type="text"
+                      className="form-control"
+                      placeholder="SPH"
+                      name="rsph"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.rcyl}
+                      type="text"
+                      className="form-control"
+                      placeholder="CYL"
+                      name="rcyl"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.raxis}
+                      type="text"
+                      className="form-control"
+                      placeholder="AXIS"
+                      name="raxis"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.radd}
+                      type="text"
+                      className="form-control"
+                      placeholder="ADD"
+                      name="radd"
+                    />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-1 pt-1 text-bold">OS</div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.lsph}
+                      type="text"
+                      className="form-control"
+                      placeholder="SPH"
+                      name="lsph"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.lcyl}
+                      type="text"
+                      className="form-control"
+                      placeholder="CYL"
+                      name="lcyl"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.laxis}
+                      type="text"
+                      className="form-control"
+                      placeholder="AXIS"
+                      name="laxis"
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.ladd}
+                      type="text"
+                      className="form-control"
+                      placeholder="ADD"
+                      name="ladd"
+                    />
+                  </div>
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    PD :
+                  </label>
+                  <div className="row">
+                    <div className="col">
+                      <div className="form-group">
+                        <input
+                          onChange={(e) => handleChangeUkuranBaru(e)}
+                          value={ukuranBaru.pd_jauh}
+                          type="text"
+                          className="form-control"
+                          placeholder="PD Jauh"
+                          name="pd_jauh"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col">
+                      <div className="form-group">
+                        <input
+                          onChange={(e) => handleChangeUkuranBaru(e)}
+                          value={ukuranBaru.pd_dekat}
+                          type="text"
+                          className="form-control"
+                          placeholder="PD Dekat"
+                          name="pd_dekat"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className=" mb-0">
+                    Tanggal Periksa :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangeUkuranBaru(e)}
+                    value={ukuranBaru.tanggal_periksa}
+                    type="date"
+                    name="tanggal_periksa"
+                    id=""
+                    className="form-control"
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Pemeriksa :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangeUkuranBaru(e)}
+                    value={ukuranBaru.pemeriksa}
+                    type="text"
+                    name="pemeriksa"
+                    id=""
+                    className="form-control"
+                    placeholder="Pemeriksa"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-0">
+                  <label htmlFor="" className=" mb-0">
+                    Keterangan :
+                  </label>
+                  <textarea
+                    onChange={(e) => handleChangeUkuranBaru(e)}
+                    value={ukuranBaru.keterangan}
+                    name="keterangan"
+                    className="form-control"
+                    id=""
+                    cols="30"
+                    rows="2"
+                    placeholder="Keluhan / Keterangan lain"
+                  ></textarea>
+                </div>
+              </div>
+              <div className="modal-footer justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
+                  data-toggle="modal"
+                  data-target="#modal-ukuran-lama"
+                >
+                  Back
+                </button>
+                <div>
+                  <button
+                    type="submit"
+                    className="btn btn-primary ml-1"
+                    onClick={() => handleClose()}
+                    disabled={
+                      ukuranBaru.rsph.length === 0 ||
+                      ukuranBaru.lsph.length === 0 ||
+                      ukuranBaru.pemeriksa.length === 0
+                    }
+                  >
+                    Simpan
                   </button>
                 </div>
               </div>
