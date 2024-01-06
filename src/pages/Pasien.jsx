@@ -24,6 +24,7 @@ const Pasien = () => {
     nohp: "",
     riwayat: "",
     tanggal: "",
+    data_rekam: [],
   });
   const [pasien, setPasien] = useState({
     nama: "",
@@ -166,19 +167,32 @@ const Pasien = () => {
     },
   ];
 
-  const showDetail = (row) => {
-    const data = {
-      nama: row.nama,
-      alamat: row.alamat,
-      ttl: row.ttl,
-      jenis_kelamin: row.jenis_kelamin,
-      pekerjaan: row.pekerjaan,
-      nohp: row.nohp,
-      riwayat: row.riwayat,
-      tanggal: row.tanggal,
-    };
-
-    setDetail(data);
+  const showDetail = async (row) => {
+    try {
+      const response = await axios.get(URL + "api/rekam/" + row.id, {
+        headers: {
+          Authorization: localStorage.getItem("user-token"),
+        },
+      });
+      if (response.data.success) {
+        setDetail({
+          nama: row.nama,
+          alamat: row.alamat,
+          ttl: row.ttl,
+          jenis_kelamin: row.jenis_kelamin,
+          pekerjaan: row.pekerjaan,
+          nohp: row.nohp,
+          riwayat: row.riwayat,
+          tanggal: row.tanggal,
+          data_rekam: response.data.data,
+        });
+      } else {
+        localStorage.clear();
+        return navigate("/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const simpanPasien = async (e) => {
@@ -295,10 +309,10 @@ const Pasien = () => {
     e.preventDefault();
     const pasien_id = await submitPasien(e);
 
-    await submitUkuranbaru(pasien_id);
     if (ukuranLama.rsph.length !== 0) {
       await submitUkuranLama(pasien_id);
     }
+    await submitUkuranbaru(pasien_id);
     alert("Data Berhasil Disimpan...!");
     await getData();
   };
@@ -432,6 +446,95 @@ const Pasien = () => {
                   </tr>
                 </tbody>
               </table>
+              {detail.data_rekam.length !== 0 &&
+                detail.data_rekam.map((data) => (
+                  <div
+                    className="accordion"
+                    id="accordionExample"
+                    key={data.id}
+                  >
+                    <div className="card">
+                      <div
+                        className="card-header p-1"
+                        id={"heading-" + data.id}
+                      >
+                        <h2 className="mb-0">
+                          <button
+                            className="btn btn-link btn-block text-left"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target={"#collapse-" + data.id}
+                            aria-expanded="true"
+                            aria-controls={"collapse-" + data.id}
+                          >
+                            # {moment(data.tanggal).format("DD/MM/YYYY")}
+                            {data.ukuran_lama === "y" ? " Ukuran Lama" : ""}
+                          </button>
+                        </h2>
+                      </div>
+
+                      <div
+                        id={"collapse-" + data.id}
+                        className="collapse"
+                        aria-labelledby={"heading-" + data.id}
+                        data-parent="#accordionExample"
+                      >
+                        <div className="card-body py-1">
+                          <table className="mb-1">
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <b>Pemeriksa</b>
+                                </td>
+                                <td>:</td>
+                                <td>{data.pemeriksa}</td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <b>Keterangan</b>
+                                </td>
+                                <td>:</td>
+                                <td>{data.keterangan}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <table className="table-small">
+                            <thead>
+                              <tr>
+                                <th></th>
+                                <th>Sph</th>
+                                <th>Cyl</th>
+                                <th>Axis</th>
+                                <th>Add</th>
+                                <th>PD</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>OD</td>
+                                <td>{data.od.split("/")[0]}</td>
+                                <td>{data.od.split("/")[1]}</td>
+                                <td>{data.od.split("/")[2]}</td>
+                                <td>{data.od.split("/")[3]}</td>
+                                <td rowSpan={2}>
+                                  {data.pd_jauh !== null && data.pd_jauh}/
+                                  {data.pd_dekat !== null && data.pd_dekat}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>OS</td>
+                                <td>{data.os.split("/")[0]}</td>
+                                <td>{data.os.split("/")[1]}</td>
+                                <td>{data.os.split("/")[2]}</td>
+                                <td>{data.os.split("/")[3]}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
             <div className="modal-footer justify-content-between">
               <button
