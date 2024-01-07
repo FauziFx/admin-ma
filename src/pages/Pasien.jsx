@@ -401,7 +401,7 @@ const Pasien = () => {
             <div className="modal-header">
               <h4 className="modal-title">Detail</h4>
             </div>
-            <div className="modal-body">
+            <div className="modal-body modal-body-overflow">
               <table id="table-detail" className=" table table-sm">
                 <tbody>
                   <tr>
