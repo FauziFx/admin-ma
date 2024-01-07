@@ -13,6 +13,7 @@ import KlaimGaransi from "./pages/KlaimGaransi";
 import DaftarAkun from "./pages/DaftarAkun";
 import PengaturanAkun from "./pages/PengaturanAkun";
 import StokLensa from "./pages/StokLensa";
+import Error404 from "./pages/Error404";
 
 function App() {
   return (
@@ -108,6 +109,7 @@ function App() {
             }
           />
         </Route>
+        <Route path="*" element={<Error404 />} />
       </Routes>
     </BrowserRouter>
   );
