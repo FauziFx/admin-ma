@@ -24,14 +24,6 @@
   border-collapse: collapse;
 }
 
-.modal-dialog {
-  overflow-y: initial !important;
-}
-.modal-body-overflow {
-  height: 75vh;
-  overflow-y: auto;
-}
-
 .table-small thead th,
 .table-small tbody td {
   text-align: center;

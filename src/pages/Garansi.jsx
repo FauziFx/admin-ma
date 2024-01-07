@@ -269,12 +269,12 @@ const Garansi = () => {
         data-backdrop="static"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h4 className="modal-title">Detail</h4>
             </div>
-            <div className="modal-body modal-body-overflow">
+            <div className="modal-body">
               <table id="table-detail" className="table table-sm">
                 <tbody>
                   <tr>

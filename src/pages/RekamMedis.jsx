@@ -356,7 +356,7 @@ const RekamMedis = () => {
         data-backdrop="static"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h4 className="modal-title">Detail</h4>
@@ -369,7 +369,7 @@ const RekamMedis = () => {
                 <span>x</span>
               </button>
             </div>
-            <div className="modal-body modal-body-overflow">
+            <div className="modal-body">
               <table id="table-detail" className="table table-sm">
                 <tbody>
                   <tr>
@@ -504,7 +504,7 @@ const RekamMedis = () => {
         data-backdrop="static"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h4 className="modal-title">Pilih Pasien</h4>
@@ -517,7 +517,7 @@ const RekamMedis = () => {
                 <span>x</span>
               </button>
             </div>
-            <div className="modal-body modal-body-overflow">
+            <div className="modal-body">
               <input
                 type="text"
                 className="form-control form-control"
