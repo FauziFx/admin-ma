@@ -40,18 +40,22 @@ const Garansi = () => {
     {
       name: "Tanggal",
       selector: (row) => moment.utc(row.tanggal).format("DD/MM/YYYY"),
+      sortable: true,
     },
     {
       name: "Optik/Armada",
       selector: () => "INDAH MA", //sementara
+      sortable: true,
     },
     {
       name: "Nama",
       selector: (row) => row.nama.toUpperCase(),
+      sortable: true,
     },
     {
       name: "Lensa",
       selector: (row) => row.lensa.toUpperCase(),
+      sortable: true,
     },
     {
       name: "Action",
@@ -270,7 +274,7 @@ const Garansi = () => {
             <div className="modal-header">
               <h4 className="modal-title">Detail</h4>
             </div>
-            <div className="modal-body">
+            <div className="modal-body modal-body-overflow">
               <table id="table-detail" className="table table-sm">
                 <tbody>
                   <tr>
@@ -396,7 +400,10 @@ const Garansi = () => {
                     key={data.id}
                   >
                     <div className="card">
-                      <div className="card-header" id={"heading-" + data.id}>
+                      <div
+                        className="card-header p-1"
+                        id={"heading-" + data.id}
+                      >
                         <h2 className="mb-0">
                           <button
                             className="btn btn-link btn-block text-left"
