@@ -70,7 +70,7 @@ const StokLensa = () => {
           Edit
         </button>
       ),
-      width: "20%",
+      width: "auto",
     },
   ];
 
