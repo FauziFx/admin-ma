@@ -12,6 +12,7 @@ const Pasien = () => {
   const URL = import.meta.env.VITE_API_URL;
   const closeModalPasien = useRef(null);
   const closeModalAll = useRef(null);
+  const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
@@ -155,15 +156,24 @@ const Pasien = () => {
       selector: (row) => (
         <>
           <button
-            className="btn-xs btn-info"
+            className="btn-xs btn-info mr-1"
             onClick={() => showDetail(row)}
             data-toggle="modal"
             data-target="#modal-detail"
           >
             Detail
           </button>
+          <button
+            className="btn-xs btn-danger mr-1"
+            data-toggle="modal"
+            data-target="#modal-konfirmasi"
+            onClick={() => setDataHapus({ id: row.id, nama: row.nama })}
+          >
+            Hapus
+          </button>
         </>
       ),
+      width: "auto",
     },
   ];
 
@@ -336,6 +346,25 @@ const Pasien = () => {
     }
   };
 
+  const hapusPasien = async (id) => {
+    try {
+      const response = await axios.delete(URL + "api/pasien/" + id, {
+        headers: {
+          Authorization: localStorage.getItem("user-token"),
+        },
+      });
+      if (response.data.success) {
+        alert("Data Berhasil Dihapus...!");
+        getData();
+      } else {
+        localStorage.clear();
+        return navigate("/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -387,6 +416,45 @@ const Pasien = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Konfimasi */}
+      <div
+        className="modal fade"
+        id="modal-konfirmasi"
+        data-keyboard="false"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-body">
+              <h3>Konfirmasi Hapus</h3>
+              Hapus Semua Data Rekam Medis <b>{dataHapus.nama}</b> ?
+            </div>
+            <div className="modal-footer justify-content-between">
+              <button
+                type="button"
+                className="btn btn-default"
+                data-dismiss="modal"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-dismiss="modal"
+                onClick={() => hapusPasien(dataHapus.id)}
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+          {/* Modal Content */}
+        </div>
+        {/* Modal Dialog */}
+      </div>
+
+      {/* Modal Edit */}
 
       {/* Modal Detail */}
       <div
