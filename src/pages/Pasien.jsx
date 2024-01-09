@@ -12,6 +12,8 @@ const Pasien = () => {
   const URL = import.meta.env.VITE_API_URL;
   const closeModalPasien = useRef(null);
   const closeModalAll = useRef(null);
+  const closeModalEdit = useRef(null);
+  const [pasienId, setPasienId] = useState(0);
   const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
@@ -91,6 +93,7 @@ const Pasien = () => {
   const handleClose = async () => {
     closeModalPasien.current.click();
     closeModalAll.current.click();
+    closeModalEdit.current.click();
 
     setTimeout(() => {
       setPasien({
@@ -132,7 +135,7 @@ const Pasien = () => {
         pemeriksa: "",
         keterangan: "",
       });
-    }, 2000);
+    }, 1500);
   };
 
   const columns = [
@@ -156,7 +159,7 @@ const Pasien = () => {
       selector: (row) => (
         <>
           <button
-            className="btn-xs btn-info mr-1"
+            className="btn btn-xs btn-info mr-1"
             onClick={() => showDetail(row)}
             data-toggle="modal"
             data-target="#modal-detail"
@@ -164,7 +167,28 @@ const Pasien = () => {
             Detail
           </button>
           <button
-            className="btn-xs btn-danger mr-1"
+            className="btn btn-xs btn-success mr-1"
+            data-toggle="modal"
+            data-target="#modal-edit"
+            onClick={() => {
+              setPasienId(row.id);
+              let date = new Date(row.ttl.split(",")[1]);
+              setPasien({
+                nama: row.nama,
+                alamat: row.alamat,
+                tempat: row.ttl.split(",")[0],
+                tanggal_lahir: moment(date).format("YYYY-MM-DD"),
+                jenis_kelamin: row.jenis_kelamin,
+                pekerjaan: row.pekerjaan,
+                nohp: row.nohp,
+                riwayat: row.riwayat,
+              });
+            }}
+          >
+            Edit
+          </button>
+          <button
+            className="btn btn-xs btn-danger mr-1"
             data-toggle="modal"
             data-target="#modal-konfirmasi"
             onClick={() => setDataHapus({ id: row.id, nama: row.nama })}
@@ -205,6 +229,38 @@ const Pasien = () => {
     }
   };
 
+  const submitEditPasien = async (e) => {
+    e.preventDefault();
+    const ttl =
+      pasien.tempat +
+      ", " +
+      moment(pasien.tanggal_lahir).locale("id").format("DD MMMM YYYY");
+    const data = {
+      nama: pasien.nama,
+      alamat: pasien.alamat,
+      ttl: ttl,
+      jenis_kelamin: pasien.jenis_kelamin,
+      pekerjaan: pasien.pekerjaan,
+      nohp: pasien.nohp,
+      riwayat: pasien.riwayat,
+    };
+
+    try {
+      const response = await axios.put(URL + "api/pasien/" + pasienId, data, {
+        headers: {
+          Authorization: localStorage.getItem("user-token"),
+        },
+      });
+
+      if (response.data.success === true) {
+        alert(response.data.message);
+        getData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const simpanPasien = async (e) => {
     e.preventDefault();
     await submitPasien(e);
@@ -215,7 +271,7 @@ const Pasien = () => {
     e.preventDefault();
     const ttl =
       pasien.tempat +
-      " " +
+      ", " +
       moment(pasien.tanggal_lahir).locale("id").format("DD MMMM YYYY");
     const data = {
       nama: pasien.nama,
@@ -455,6 +511,178 @@ const Pasien = () => {
       </div>
 
       {/* Modal Edit */}
+      <div
+        className="modal fade"
+        id="modal-edit"
+        data-keyboard="false"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Edit Pasien</h4>
+            </div>
+            <form onSubmit={submitEditPasien}>
+              <div className="modal-body py-0">
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Nama :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.nama}
+                    type="text"
+                    name="nama"
+                    className="form-control"
+                    placeholder="Nama pasien"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Alamat :
+                  </label>
+                  <textarea
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.alamat}
+                    name="alamat"
+                    id=""
+                    cols="30"
+                    rows="2"
+                    className="form-control"
+                    placeholder="Alamat"
+                    required
+                  ></textarea>
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Tempat Lahir :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.tempat}
+                    type="text"
+                    className="form-control"
+                    name="tempat"
+                    placeholder="Tempat Lahir"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Tanggal Lahir :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.tanggal_lahir}
+                    type="date"
+                    className="form-control"
+                    name="tanggal_lahir"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Jenis Kelamin :
+                  </label>
+                  <select
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.jenis_kelamin}
+                    name="jenis_kelamin"
+                    id=""
+                    className="form-control"
+                    required
+                  >
+                    <option value="">-Jenis Kelamin-</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Pekerjaan :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.pekerjaan}
+                    type="text"
+                    name="pekerjaan"
+                    className="form-control"
+                    placeholder="Pekerjaan"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    No Hp :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.nohp}
+                    type="number"
+                    name="nohp"
+                    className="form-control"
+                    placeholder="08xxxx"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Riwayat Penyakit :
+                  </label>
+                  <select
+                    onChange={(e) => handleChangePasien(e)}
+                    value={pasien.riwayat}
+                    name="riwayat"
+                    id=""
+                    className="form-control"
+                    required
+                  >
+                    <option value="-">Tidak ada</option>
+                    <option value="Hipertensi">Hipertensi</option>
+                    <option value="Gula Darah">Gula Darah</option>
+                    <option value="Kecelakaan">Kecelakaan</option>
+                    <option value="Operasi Mata">Operasi Mata</option>
+                    <option value="Katarak">Katarak </option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-footer justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
+                  ref={closeModalEdit}
+                  onClick={() => handleClose()}
+                >
+                  Close
+                </button>
+                <div>
+                  <button
+                    type="submit"
+                    className="btn btn-success"
+                    onClick={() => handleClose()}
+                    disabled={
+                      pasien.nama.length === 0 ||
+                      pasien.alamat.length === 0 ||
+                      pasien.tempat.length === 0 ||
+                      pasien.tanggal_lahir.length === 0 ||
+                      pasien.jenis_kelamin.length === 0 ||
+                      pasien.pekerjaan.length === 0 ||
+                      pasien.nohp.length === 0
+                    }
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          {/* Modal Content */}
+        </div>
+        {/* Modal Dialog */}
+      </div>
 
       {/* Modal Detail */}
       <div
