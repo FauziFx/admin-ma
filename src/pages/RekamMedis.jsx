@@ -16,6 +16,7 @@ const RekamMedis = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
+  const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
   // Data Pasien
   const [dataPasien, setDataPasien] = useState([]);
   const [searchPasien, setSearchPasien] = useState("");
@@ -97,15 +98,26 @@ const RekamMedis = () => {
     {
       name: "Action",
       selector: (row) => (
-        <button
-          onClick={() => showDetail(row)}
-          className="btn btn-xs btn-info mr-1"
-          data-toggle="modal"
-          data-target="#modal-detail"
-        >
-          Detail
-        </button>
+        <>
+          <button
+            onClick={() => showDetail(row)}
+            className="btn btn-xs btn-info mr-1"
+            data-toggle="modal"
+            data-target="#modal-detail"
+          >
+            Detail
+          </button>
+          <button
+            className="btn btn-xs btn-danger"
+            data-toggle="modal"
+            data-target="#modal-konfirmasi"
+            onClick={() => setDataHapus({ id: row.id, nama: row.nama })}
+          >
+            Hapus
+          </button>
+        </>
       ),
+      width: "auto",
     },
   ];
 
@@ -170,6 +182,25 @@ const RekamMedis = () => {
         keterangan: "",
       });
     }, 2000);
+  };
+
+  const hapusRekamMedis = async (id) => {
+    try {
+      const response = await axios.delete(URL + "api/rekam/" + id, {
+        headers: {
+          Authorization: localStorage.getItem("user-token"),
+        },
+      });
+      if (response.data.success) {
+        alert("Data Berhasil Dihapus...!");
+        getData();
+      } else {
+        localStorage.clear();
+        return navigate("/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const showDetail = async (row) => {
@@ -346,6 +377,43 @@ const RekamMedis = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Modal Konfimasi */}
+      <div
+        className="modal fade"
+        id="modal-konfirmasi"
+        data-keyboard="false"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-body">
+              <h3>Konfirmasi Hapus</h3>
+              Hapus Data Rekam Medis <b>{dataHapus.nama}</b> ?
+            </div>
+            <div className="modal-footer justify-content-between">
+              <button
+                type="button"
+                className="btn btn-default"
+                data-dismiss="modal"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-dismiss="modal"
+                onClick={() => hapusRekamMedis(dataHapus.id)}
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+          {/* Modal Content */}
+        </div>
+        {/* Modal Dialog */}
       </div>
 
       {/* Modal Detail */}
@@ -557,7 +625,7 @@ const RekamMedis = () => {
         data-backdrop="static"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h4 className="modal-title">Ukuran Kacamata Baru</h4>
