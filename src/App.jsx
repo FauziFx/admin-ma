@@ -14,6 +14,7 @@ import DaftarAkun from "./pages/DaftarAkun";
 import PengaturanAkun from "./pages/PengaturanAkun";
 import StokLensa from "./pages/StokLensa";
 import Error404 from "./pages/Error404";
+import DataOptik from "./pages/DataOptik";
 
 function App() {
   return (
@@ -89,6 +90,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <KlaimGaransi />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="data-optik"
+            element={
+              <ProtectedRoute>
+                <DataOptik />
               </ProtectedRoute>
             }
           />

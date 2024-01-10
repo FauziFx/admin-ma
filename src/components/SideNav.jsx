@@ -44,13 +44,20 @@ const SideNav = () => {
     },
     {
       id: 5,
+      title: "Data Optik/Armada",
+      url: "data-optik",
+      icon: "fa-building",
+      clicked: false,
+    },
+    {
+      id: 6,
       title: "Daftar Akun",
       url: "daftar-akun",
       icon: "fa-list-alt",
       clicked: false,
     },
     {
-      id: 6,
+      id: 7,
       title: "Pengaturan Akun",
       url: "pengaturan-akun",
       icon: "fa-cog",
