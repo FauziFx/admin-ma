@@ -44,7 +44,7 @@ const Garansi = () => {
     },
     {
       name: "Optik/Armada",
-      selector: () => "INDAH MA", //sementara
+      selector: (row) => row.nama_optik, //sementara
       sortable: true,
     },
     {
@@ -141,6 +141,7 @@ const Garansi = () => {
         status_lensa: status_lensa,
         status_frame: status_frame,
         tanggal: row.tanggal,
+        nama_optik: row.nama_optik,
         data_klaim: response.data,
       });
     } catch (error) {
@@ -285,7 +286,7 @@ const Garansi = () => {
                   <tr>
                     <td>Optik</td>
                     <td>:</td>
-                    <td>{detail.nama.toUpperCase()}</td>
+                    <td>{detail.nama_optik}</td>
                   </tr>
                   <tr>
                     <td>Nama</td>
