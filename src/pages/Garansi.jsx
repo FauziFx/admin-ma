@@ -250,7 +250,6 @@ const Garansi = () => {
                   <DataTable
                     columns={columns}
                     data={filter}
-                    defaultSortFieldId={1}
                     pagination
                     highlightOnHover
                     customStyles={tableCustomStyles}
