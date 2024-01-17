@@ -4,12 +4,14 @@ import DataTable from "react-data-table-component";
 import useDocumentTitle from "../utils/useDocumentTitle";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const DaftarAkun = () => {
   useDocumentTitle("Daftar Akun");
   const navigate = useNavigate();
   const closeModalTambah = useRef(null);
   const closeModalEdit = useRef(null);
+  const [idLogin, setIdLogin] = useState(0);
   const URL = import.meta.env.VITE_API_URL;
   const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
   const [user, setUser] = useState({
@@ -52,15 +54,19 @@ const DaftarAkun = () => {
             className="btn btn-xs btn-success mr-1"
             data-toggle="modal"
             data-target="#modal-edit"
-            onClick={() =>
-              setUserEdit({
-                id: row.id,
-                name: row.name,
-                email: row.email,
-                password: "",
-                role: row.role,
-              })
-            }
+            onClick={() => {
+              if (row.id == idLogin) {
+                navigate("/pengaturan-akun");
+              } else {
+                setUserEdit({
+                  id: row.id,
+                  name: row.name,
+                  email: row.email,
+                  password: "",
+                  role: row.role,
+                });
+              }
+            }}
           >
             Edit
           </button>
@@ -147,18 +153,23 @@ const DaftarAkun = () => {
   };
 
   const hapusUser = async (id) => {
-    try {
-      const response = await axios.delete(URL + "api/users/" + id, {
-        headers: {
-          Authorization: localStorage.getItem("user-token"),
-        },
-      });
-      if (response.data.success) {
-        alert(response.data.message);
-        getData();
+    if (id == idLogin) {
+      alert("Anda Sedang Login");
+      handleClose();
+    } else {
+      try {
+        const response = await axios.delete(URL + "api/users/" + id, {
+          headers: {
+            Authorization: localStorage.getItem("user-token"),
+          },
+        });
+        if (response.data.success) {
+          alert(response.data.message);
+          getData();
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -173,6 +184,8 @@ const DaftarAkun = () => {
       if (response.data.success) {
         setData(response.data.data);
         setFilter(response.data.data);
+        const decode = jwtDecode(localStorage.getItem("user-token")).user.id;
+        setIdLogin(decode);
       } else {
         localStorage.clear();
         return navigate("/login");
