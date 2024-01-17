@@ -9,12 +9,20 @@ const DaftarAkun = () => {
   useDocumentTitle("Daftar Akun");
   const navigate = useNavigate();
   const closeModalTambah = useRef(null);
+  const closeModalEdit = useRef(null);
   const URL = import.meta.env.VITE_API_URL;
   const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
   const [user, setUser] = useState({
     name: "",
     email: "",
     password: "",
+  });
+  const [userEdit, setUserEdit] = useState({
+    id: 0,
+    name: "",
+    email: "",
+    password: "",
+    role: "",
   });
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
@@ -34,7 +42,22 @@ const DaftarAkun = () => {
       name: "Action",
       selector: (row) => (
         <>
-          <button className="btn btn-xs btn-success mr-1">Edit</button>
+          <button
+            className="btn btn-xs btn-success mr-1"
+            data-toggle="modal"
+            data-target="#modal-edit"
+            onClick={() =>
+              setUserEdit({
+                id: row.id,
+                name: row.name,
+                email: row.email,
+                password: "",
+                role: row.role,
+              })
+            }
+          >
+            Edit
+          </button>
           <button
             className="btn btn-xs btn-danger"
             data-toggle="modal"
@@ -55,11 +78,20 @@ const DaftarAkun = () => {
     }));
   };
 
+  const handleChangeUserEdit = async (e) => {
+    setUserEdit((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
   const handleClose = async () => {
     closeModalTambah.current.click();
+    closeModalEdit.current.click();
 
     setTimeout(() => {
       setUser({ name: "", email: "", password: "" });
+      setUserEdit({ name: "", email: "", password: "", role: "" });
     }, 1500);
   };
 
@@ -71,6 +103,33 @@ const DaftarAkun = () => {
           Authorization: localStorage.getItem("user-token"),
         },
       });
+      if (response.data.success === true) {
+        alert(response.data.message);
+        getData();
+        handleClose();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const submitUserEdit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(
+        URL + "api/users/" + userEdit.id,
+        {
+          name: userEdit.name,
+          email: userEdit.email,
+          password: userEdit.password,
+          role: userEdit.role,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("user-token"),
+          },
+        }
+      );
       if (response.data.success === true) {
         alert(response.data.message);
         getData();
@@ -241,7 +300,6 @@ const DaftarAkun = () => {
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    // onClick={() => handleClose()}
                     disabled={
                       user.name.length === 0 ||
                       user.email.length === 0 ||
@@ -290,6 +348,107 @@ const DaftarAkun = () => {
                 Hapus
               </button>
             </div>
+          </div>
+          {/* Modal Content */}
+        </div>
+        {/* Modal Dialog */}
+      </div>
+
+      {/* Modal Tambah */}
+      <div
+        className="modal fade"
+        id="modal-edit"
+        data-keyboard="false"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Tambah User</h4>
+            </div>
+            <form onSubmit={submitUserEdit}>
+              <div className="modal-body py-0">
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Nama :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangeUserEdit(e)}
+                    value={userEdit.name}
+                    type="text"
+                    name="name"
+                    className="form-control"
+                    placeholder="Nama User"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Email :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangeUserEdit(e)}
+                    value={userEdit.email}
+                    type="email"
+                    name="email"
+                    className="form-control"
+                    placeholder="email@mail.com"
+                    required
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Password <i>(Optional)</i> :
+                  </label>
+                  <input
+                    onChange={(e) => handleChangeUserEdit(e)}
+                    value={userEdit.password}
+                    type="password"
+                    name="password"
+                    className="form-control"
+                    placeholder="******"
+                  />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Role
+                  </label>
+                  <select
+                    name="role"
+                    id=""
+                    className="form-control"
+                    value={userEdit.role}
+                    onChange={(e) => handleChangeUserEdit(e)}
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-footer justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
+                  ref={closeModalEdit}
+                  onClick={() => handleClose()}
+                >
+                  Close
+                </button>
+                <div>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={
+                      userEdit.name.length === 0 || userEdit.email.length === 0
+                    }
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
           {/* Modal Content */}
         </div>
