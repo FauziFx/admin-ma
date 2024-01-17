@@ -35,7 +35,13 @@ const DaftarAkun = () => {
     {
       name: "Role",
       selector: (row) => (
-        <span className="badge bg-secondary">{row.role.toUpperCase()}</span>
+        <span
+          className={
+            row.role == "user" ? "badge bg-secondary" : "badge bg-primary"
+          }
+        >
+          {row.role.toUpperCase()}
+        </span>
       ),
     },
     {
