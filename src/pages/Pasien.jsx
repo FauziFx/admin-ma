@@ -859,10 +859,19 @@ const Pasien = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h4 className="modal-title">Tambah Pasien</h4>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+                onClick={() => handleClose()}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
             </div>
             <form onSubmit={simpanPasien}>
               <div className="modal-body py-0">
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Nama :
                   </label>
@@ -876,7 +885,7 @@ const Pasien = () => {
                     required
                   />
                 </div>
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Alamat :
                   </label>
@@ -892,7 +901,7 @@ const Pasien = () => {
                     required
                   ></textarea>
                 </div>
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Tempat Lahir :
                   </label>
@@ -906,7 +915,7 @@ const Pasien = () => {
                     required
                   />
                 </div>
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Tanggal Lahir :
                   </label>
@@ -919,7 +928,7 @@ const Pasien = () => {
                     required
                   />
                 </div>
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Jenis Kelamin :
                   </label>
@@ -936,7 +945,7 @@ const Pasien = () => {
                     <option value="Perempuan">Perempuan</option>
                   </select>
                 </div>
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Pekerjaan :
                   </label>
@@ -950,7 +959,7 @@ const Pasien = () => {
                     required
                   />
                 </div>
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     No Hp :
                   </label>
@@ -964,7 +973,7 @@ const Pasien = () => {
                     required
                   />
                 </div>
-                <div className="form-group mb-1">
+                <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Riwayat Penyakit :
                   </label>
