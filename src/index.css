@@ -13,6 +13,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.modal-dialog {
+  overflow-y: initial !important;
+}
+.modal-body-scroll {
+  height: 60vh;
+  overflow-y: auto;
+}
+
 .table-small {
   width: 100%;
 }

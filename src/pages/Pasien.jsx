@@ -870,7 +870,7 @@ const Pasien = () => {
               </button>
             </div>
             <form onSubmit={simpanPasien}>
-              <div className="modal-body py-0">
+              <div className="modal-body modal-body-scroll py-0">
                 <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
                     Nama :
