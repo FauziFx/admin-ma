@@ -1,7 +1,13 @@
 import Navbar from "./components/Navbar";
 import SideNav from "./components/SideNav";
 import Footer from "./components/Footer";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+  useNavigate,
+} from "react-router-dom";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -15,8 +21,22 @@ import PengaturanAkun from "./pages/PengaturanAkun";
 import StokLensa from "./pages/StokLensa";
 import Error404 from "./pages/Error404";
 import DataOptik from "./pages/DataOptik";
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 
 function App() {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const userToken = localStorage.getItem("user-token");
+    if (userToken) {
+      const decode = jwtDecode(userToken);
+      if (decode.user.role == "admin") {
+        setIsAdmin(true);
+      }
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -57,7 +77,7 @@ function App() {
             path="data-lensa/:id"
             element={
               <ProtectedRoute>
-                <StokLensa />
+                <StokLensa isAdmin={isAdmin} />
               </ProtectedRoute>
             }
           />

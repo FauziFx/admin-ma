@@ -5,7 +5,7 @@ import DataTable from "react-data-table-component";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-const StokLensa = () => {
+const StokLensa = ({ isAdmin }) => {
   const navigate = useNavigate();
   const URL = import.meta.env.VITE_API_URL;
   const { id } = useParams();
@@ -71,6 +71,7 @@ const StokLensa = () => {
         </button>
       ),
       width: "auto",
+      omit: !isAdmin,
     },
   ];
 
@@ -167,85 +168,88 @@ const StokLensa = () => {
           </div>
         </div>
       </div>
+
       {/* Modal edit */}
-      <div
-        className="modal fade"
-        id="modal-edit"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Edit {lensa}</h4>
-              <button
-                type="button"
-                className="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <label htmlFor="">{powerEdit.power_name}</label>
-              <div className="row">
-                <div className="col p-0">
-                  <label htmlFor="">In Stock</label>
-                  <input
-                    type="text"
-                    className="form-control rounded-0"
-                    value={powerEdit.inStock}
-                    onChange={(e) =>
-                      setPowerEdit((powerEdit) => ({
-                        ...powerEdit,
-                        inStock: e.target.value,
-                      }))
-                    }
-                    disabled
-                  />
-                </div>
-                <div className="col p-0">
-                  <label htmlFor="">Actual Stock</label>
-                  <input
-                    type="text"
-                    className="form-control rounded-0"
-                    value={powerEdit.stock}
-                    onChange={(e) =>
-                      setPowerEdit((powerEdit) => ({
-                        ...powerEdit,
-                        stock: e.target.value,
-                      }))
-                    }
-                    autoFocus
-                    required
-                  />
+      {isAdmin && (
+        <div
+          className="modal fade"
+          id="modal-edit"
+          data-keyboard="false"
+          data-backdrop="static"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Edit {lensa}</h4>
+                <button
+                  type="button"
+                  className="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <label htmlFor="">{powerEdit.power_name}</label>
+                <div className="row">
+                  <div className="col p-0">
+                    <label htmlFor="">In Stock</label>
+                    <input
+                      type="text"
+                      className="form-control rounded-0"
+                      value={powerEdit.inStock}
+                      onChange={(e) =>
+                        setPowerEdit((powerEdit) => ({
+                          ...powerEdit,
+                          inStock: e.target.value,
+                        }))
+                      }
+                      disabled
+                    />
+                  </div>
+                  <div className="col p-0">
+                    <label htmlFor="">Actual Stock</label>
+                    <input
+                      type="text"
+                      className="form-control rounded-0"
+                      value={powerEdit.stock}
+                      onChange={(e) =>
+                        setPowerEdit((powerEdit) => ({
+                          ...powerEdit,
+                          stock: e.target.value,
+                        }))
+                      }
+                      autoFocus
+                      required
+                    />
+                  </div>
                 </div>
               </div>
+              <div className="modal-footer justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    updateStock();
+                  }}
+                  type="button"
+                  className="btn btn-primary"
+                  data-dismiss="modal"
+                >
+                  Simpan
+                </button>
+              </div>
             </div>
-            <div className="modal-footer justify-content-between">
-              <button
-                type="button"
-                className="btn btn-default"
-                data-dismiss="modal"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => {
-                  updateStock();
-                }}
-                type="button"
-                className="btn btn-primary"
-                data-dismiss="modal"
-              >
-                Simpan
-              </button>
-            </div>
+            {/* Modal Content */}
           </div>
-          {/* Modal Content */}
+          {/* Modal Dialog */}
         </div>
-        {/* Modal Dialog */}
-      </div>
+      )}
     </div>
   );
 };
