@@ -45,7 +45,7 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <Layout />
+              <Layout isAdmin={isAdmin} />
             </ProtectedRoute>
           }
         >
@@ -121,14 +121,17 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="daftar-akun"
-            element={
-              <ProtectedRoute>
-                <DaftarAkun />
-              </ProtectedRoute>
-            }
-          />
+          {isAdmin && (
+            <Route
+              path="daftar-akun"
+              element={
+                <ProtectedRoute>
+                  <DaftarAkun />
+                </ProtectedRoute>
+              }
+            />
+          )}
+
           <Route
             path="pengaturan-akun"
             element={
@@ -144,11 +147,11 @@ function App() {
   );
 }
 
-const Layout = () => {
+const Layout = ({ isAdmin }) => {
   return (
     <div className="wrapper">
       <Navbar />
-      <SideNav />
+      <SideNav isAdmin={isAdmin} />
       <Outlet />
       <Footer />
     </div>

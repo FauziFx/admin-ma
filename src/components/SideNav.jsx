@@ -2,12 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-const SideNav = () => {
+const SideNav = ({ isAdmin }) => {
   const [active, setActive] = useState(null);
   const [user, setUser] = useState({});
   const navigate = useNavigate();
+  const [dataMenuFilter, setDataMenuFilter] = useState([]);
 
   useEffect(() => {
+    if (!isAdmin) {
+      setDataMenuFilter(
+        dataMenu.filter((dataMenu) => dataMenu.role === "user")
+      );
+    } else {
+      setDataMenuFilter(dataMenu);
+    }
     const userToken = localStorage.getItem("user-token");
     if (!userToken) {
       return navigate("/login");
@@ -20,7 +28,7 @@ const SideNav = () => {
         role: decode.user.role,
       });
     }
-  }, []);
+  }, [isAdmin]);
 
   const [dataMenu, setDataMenu] = useState([
     {
@@ -29,6 +37,7 @@ const SideNav = () => {
       url: "",
       icon: "fa-tachometer-alt",
       clicked: false,
+      role: "user",
     },
     {
       id: 2,
@@ -36,6 +45,7 @@ const SideNav = () => {
       url: "data-lensa",
       icon: "fa-database",
       clicked: false,
+      role: "user",
     },
     {
       id: 3,
@@ -47,6 +57,7 @@ const SideNav = () => {
         { title: "Data Rekam Medis", url: "rekam-medis" },
       ],
       clicked: false,
+      role: "user",
     },
     {
       id: 4,
@@ -58,6 +69,7 @@ const SideNav = () => {
         { title: "Data Klaim Garansi", url: "klaim-garansi" },
       ],
       clicked: false,
+      role: "user",
     },
     {
       id: 5,
@@ -65,6 +77,7 @@ const SideNav = () => {
       url: "data-optik",
       icon: "fa-building",
       clicked: false,
+      role: "admin",
     },
     {
       id: 6,
@@ -72,6 +85,7 @@ const SideNav = () => {
       url: "daftar-akun",
       icon: "fa-list-alt",
       clicked: false,
+      role: "admin",
     },
     {
       id: 7,
@@ -79,6 +93,7 @@ const SideNav = () => {
       url: "pengaturan-akun",
       icon: "fa-cog",
       clicked: false,
+      role: "user",
     },
   ]);
 
@@ -175,7 +190,7 @@ const SideNav = () => {
             role="menu"
             data-accordion="false"
           >
-            {dataMenu.map((item) => (
+            {dataMenuFilter.map((item) => (
               <li className="nav-item" key={item.id}>
                 {item.dropdown ? (
                   <NavLinkDropdown
