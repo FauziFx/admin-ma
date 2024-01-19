@@ -1,6 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const [user, setUser] = useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userToken = localStorage.getItem("user-token");
+    if (!userToken) {
+      return navigate("/login");
+    } else {
+      const decode = jwtDecode(userToken);
+      setUser({
+        id: decode.user.id,
+        name: decode.user.name,
+        email: decode.user.email,
+        role: decode.user.role,
+      });
+    }
+  }, []);
+
   return (
     <nav className="main-header navbar navbar-expand navbar-white navbar-light">
       {/* Left navbar links */}
@@ -19,7 +39,7 @@ const Navbar = () => {
             <i className="far fa-user" />
           </a>
           <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-            <a href="#" className="dropdown-item">
+            <Link to="/pengaturan-akun" className="dropdown-item">
               {/* Message Start */}
               <div className="media">
                 <img
@@ -28,15 +48,15 @@ const Navbar = () => {
                   className="img-size-50 mr-3 img-circle"
                 />
                 <div className="media-body">
-                  <h3 className="dropdown-item-title">Brad Diesel</h3>
-                  <p className="text-sm">email@mail.com</p>
+                  <h3 className="dropdown-item-title">{user.name}</h3>
+                  <p className="text-sm">{user.email}</p>
                   <p className="text-sm text-muted">
-                    <i className="fas fa-home fa-sm" /> Unit
+                    <i className="fas fa-home fa-sm" /> {user.role}
                   </p>
                 </div>
               </div>
               {/* Message End */}
-            </a>
+            </Link>
             <div className="dropdown-divider" />
             <div className="dropdown-divider" />
             <a

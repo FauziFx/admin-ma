@@ -1,9 +1,26 @@
-import React from "react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const SideNav = () => {
   const [active, setActive] = useState(null);
+  const [user, setUser] = useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userToken = localStorage.getItem("user-token");
+    if (!userToken) {
+      return navigate("/login");
+    } else {
+      const decode = jwtDecode(userToken);
+      setUser({
+        id: decode.user.id,
+        name: decode.user.name,
+        email: decode.user.email,
+        role: decode.user.role,
+      });
+    }
+  }, []);
 
   const [dataMenu, setDataMenu] = useState([
     {
@@ -70,7 +87,7 @@ const SideNav = () => {
       <Link
         to={url}
         className={isActive ? "nav-link active" : "nav-link"}
-        onClick={() => navigate(id)}
+        onClick={() => navigates(id)}
       >
         <i className={"nav-icon fas " + icon}></i>
         <p>{title}</p>
@@ -94,7 +111,7 @@ const SideNav = () => {
           data-toggle="collapse"
           aria-expanded="false"
           className={isActive ? "nav-link active" : "nav-link"}
-          onClick={() => navigate(id)}
+          onClick={() => navigates(id)}
         >
           <i className={"nav-icon fas " + icon}></i>
           <p>
@@ -117,21 +134,21 @@ const SideNav = () => {
     );
   };
 
-  const navigate = (id) => {
+  const navigates = (id) => {
     setActive(id);
   };
 
   return (
     <aside className="main-sidebar sidebar-dark-primary elevation-4">
       {/* Brand Logo */}
-      <a href="index3.html" className="brand-link">
+      <a href="#" className="brand-link">
         <img
           src="/img/AdminLTELogo.png"
           alt="AdminLTE Logo"
           className="brand-image img-circle elevation-3"
           style={{ opacity: ".8" }}
         />
-        <span className="brand-text font-weight-light">AdminLTE 3</span>
+        <span className="brand-text font-weight-light">Admin MA</span>
       </a>
       {/* Sidebar */}
       <div className="sidebar">
@@ -139,15 +156,15 @@ const SideNav = () => {
         <div className="user-panel mt-3 pb-3 mb-3 d-flex">
           <div className="image">
             <img
-              src="/img/user2-160x160.jpg"
+              src="/img/user1-128x128.jpg"
               className="img-circle elevation-2"
               alt="User Image"
             />
           </div>
           <div className="info">
-            <a href="#" className="d-block">
-              Alexander Pierce
-            </a>
+            <Link to="/pengaturan-akun" className="d-block">
+              {user.name}
+            </Link>
           </div>
         </div>
         {/* Sidebar Menu */}
@@ -164,13 +181,13 @@ const SideNav = () => {
                   <NavLinkDropdown
                     {...item}
                     isActive={active === item.id}
-                    onClick={navigate}
+                    onClick={navigates}
                   />
                 ) : (
                   <NavLink
                     {...item}
                     isActive={active === item.id}
-                    onClick={navigate}
+                    onClick={navigates}
                   />
                 )}
               </li>
