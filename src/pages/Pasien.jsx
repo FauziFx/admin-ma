@@ -13,6 +13,8 @@ const Pasien = () => {
   const closeModalPasien = useRef(null);
   const closeModalAll = useRef(null);
   const closeModalEdit = useRef(null);
+  const [dataOptik, setDataOptik] = useState([]);
+  const [usia, setUsia] = useState("");
   const [pasienId, setPasienId] = useState(0);
   const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
   const [data, setData] = useState([]);
@@ -22,6 +24,7 @@ const Pasien = () => {
     nama: "",
     alamat: "",
     ttl: "",
+    usia: "",
     jenis_kelamin: "",
     pekerjaan: "",
     nohp: "",
@@ -66,8 +69,18 @@ const Pasien = () => {
     pd_dekat: "",
     tanggal_periksa: "",
     pemeriksa: "",
+    optik_id: "",
     keterangan: "",
   });
+
+  const handleChangeUsiaPasien = async (e) => {
+    const tahun_lahir = new Date().getFullYear() - e.target.value;
+    setUsia(e.target.value);
+    setPasien((prevState) => ({
+      ...prevState,
+      tanggal_lahir: tahun_lahir + "-01-01",
+    }));
+  };
 
   const handleChangePasien = async (e) => {
     setPasien((prevState) => ({
@@ -209,10 +222,14 @@ const Pasien = () => {
         },
       });
       if (response.data.success) {
+        const ttl = row.ttl;
+        const year = ttl.substr(ttl.length - 5);
+        const usia = Math.abs(year - new Date().getFullYear());
         setDetail({
           nama: row.nama,
           alamat: row.alamat,
           ttl: row.ttl,
+          usia: usia,
           jenis_kelamin: row.jenis_kelamin,
           pekerjaan: row.pekerjaan,
           nohp: row.nohp,
@@ -318,8 +335,10 @@ const Pasien = () => {
           os: os,
           pd_jauh: parseInt(ukuranLama.pd_jauh),
           pd_dekat: parseInt(ukuranLama.pd_dekat),
+          pemeriksa: "",
           keterangan: ukuranLama.keterangan,
           ukuran_lama: "y",
+          optik_id: null,
           pasien_id: pasien_id,
         },
         {
@@ -358,6 +377,8 @@ const Pasien = () => {
           tanggal_periksa: ukuranBaru.tanggal_periksa,
           pemeriksa: ukuranBaru.pemeriksa,
           keterangan: ukuranBaru.keterangan,
+          ukuran_lama: "n",
+          optik_id: ukuranBaru.optik_id,
           pasien_id: pasien_id,
         },
         {
@@ -381,6 +402,15 @@ const Pasien = () => {
     await submitUkuranbaru(pasien_id);
     alert("Data Berhasil Disimpan...!");
     await getData();
+  };
+
+  const getDataOptik = async () => {
+    try {
+      const response = await axios.get(URL + "api/optik");
+      setDataOptik(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const getData = async () => {
@@ -423,6 +453,7 @@ const Pasien = () => {
 
   useEffect(() => {
     getData();
+    getDataOptik();
   }, []);
 
   useEffect(() => {
@@ -706,6 +737,11 @@ const Pasien = () => {
                   <tr>
                     <td>TTL</td>
                     <td>:</td>
+                    <td>{detail.usia} Tahun</td>
+                  </tr>
+                  <tr>
+                    <td>TTL</td>
+                    <td>:</td>
                     <td>{detail.ttl}</td>
                   </tr>
                   <tr>
@@ -766,6 +802,15 @@ const Pasien = () => {
                         <div className="card-body py-1">
                           <table className="mb-1">
                             <tbody>
+                              {data.optik_id !== null && (
+                                <tr>
+                                  <td>
+                                    <b>Optik</b>
+                                  </td>
+                                  <td>:</td>
+                                  <td>{data.nama_optik}</td>
+                                </tr>
+                              )}
                               <tr>
                                 <td>
                                   <b>Pemeriksa</b>
@@ -902,6 +947,22 @@ const Pasien = () => {
                     placeholder="Tempat Lahir"
                     required
                   />
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
+                    Usia :
+                  </label>
+                  <div className="input-group">
+                    <input
+                      onChange={(e) => handleChangeUsiaPasien(e)}
+                      value={usia}
+                      type="number"
+                      className="form-control"
+                      name="usia"
+                      placeholder="Usia"
+                    />
+                    <span className="input-group-text">Tahun</span>
+                  </div>
                 </div>
                 <div className="form-group mb-0">
                   <label htmlFor="" className="mb-0">
@@ -1043,13 +1104,13 @@ const Pasien = () => {
         data-backdrop="static"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h4 className="modal-title">Ukuran Kacamata Lama</h4>
             </div>
-            <form action="post">
-              <div className="modal-body">
+            <div className="modal-body">
+              <form id="formUkuranKacamataLama" action="post">
                 <div className="row">
                   <div className="col-1 pt-1 text-bold">OD</div>
                   <div className="col p-0">
@@ -1180,79 +1241,77 @@ const Pasien = () => {
                     placeholder="Keluhan / Keterangan lain"
                   ></textarea>
                 </div>
-              </div>
-              <div className="modal-footer justify-content-between">
+              </form>
+            </div>
+            <div className="modal-footer justify-content-between">
+              <button
+                type="button"
+                className="btn btn-default"
+                data-dismiss="modal"
+                data-toggle="modal"
+                data-target="#modal-tambah"
+              >
+                Back
+              </button>
+              <div>
                 <button
                   type="button"
-                  className="btn btn-default"
+                  className="btn btn-secondary ml-1"
                   data-dismiss="modal"
                   data-toggle="modal"
-                  data-target="#modal-tambah"
+                  data-target="#modal-ukuran-baru"
+                  onClick={() => {
+                    setUkuranLama({
+                      rsph: "",
+                      rcyl: "",
+                      raxis: "",
+                      radd: "",
+                      lsph: "",
+                      lcyl: "",
+                      laxis: "",
+                      ladd: "",
+                      pd_jauh: "",
+                      pd_dekat: "",
+                      keterangan: "",
+                    });
+                    setUkuranBaru((ukuranBaru) => ({
+                      ...ukuranBaru,
+                      ...{
+                        tanggal_periksa: moment()
+                          .locale("id")
+                          .format("YYYY-MM-DD"),
+                      },
+                    }));
+                  }}
+                  disabled={
+                    ukuranLama.rsph.length !== 0 && ukuranLama.lsph.length !== 0
+                  }
                 >
-                  Back
+                  Skip
                 </button>
-                <div>
-                  <button
-                    type="button"
-                    className="btn btn-secondary ml-1"
-                    data-dismiss="modal"
-                    data-toggle="modal"
-                    data-target="#modal-ukuran-baru"
-                    onClick={() => {
-                      setUkuranLama({
-                        rsph: "",
-                        rcyl: "",
-                        raxis: "",
-                        radd: "",
-                        lsph: "",
-                        lcyl: "",
-                        laxis: "",
-                        ladd: "",
-                        pd_jauh: "",
-                        pd_dekat: "",
-                        keterangan: "",
-                      });
-                      setUkuranBaru((ukuranBaru) => ({
-                        ...ukuranBaru,
-                        ...{
-                          tanggal_periksa: moment()
-                            .locale("id")
-                            .format("YYYY-MM-DD"),
-                        },
-                      }));
-                    }}
-                    disabled={
-                      ukuranLama.rsph.length !== 0 &&
-                      ukuranLama.lsph.length !== 0
-                    }
-                  >
-                    Skip
-                  </button>
-                  <button
-                    className="btn btn-primary ml-1"
-                    data-dismiss="modal"
-                    data-toggle="modal"
-                    data-target="#modal-ukuran-baru"
-                    disabled={
-                      ukuranLama.rsph.length === 0 ||
-                      ukuranLama.lsph.length === 0
-                    }
-                    onClick={() =>
-                      setUkuranBaru((ukuranBaru) => ({
-                        ...ukuranBaru,
-                        ...{
-                          tanggal_periksa: moment()
-                            .locale("id")
-                            .format("YYYY-MM-DD"),
-                        },
-                      }))
-                    }
-                  >
-                    Next <i className="fas fa-chevron-right fa-xs"></i>
-                  </button>
-                </div>
+                <button
+                  className="btn btn-primary ml-1"
+                  data-dismiss="modal"
+                  data-toggle="modal"
+                  data-target="#modal-ukuran-baru"
+                  disabled={
+                    ukuranLama.rsph.length === 0 || ukuranLama.lsph.length === 0
+                  }
+                  onClick={() =>
+                    setUkuranBaru((ukuranBaru) => ({
+                      ...ukuranBaru,
+                      ...{
+                        tanggal_periksa: moment()
+                          .locale("id")
+                          .format("YYYY-MM-DD"),
+                      },
+                    }))
+                  }
+                >
+                  Next <i className="fas fa-chevron-right fa-xs"></i>
+                </button>
               </div>
-            </form>
+            </div>
           </div>
           {/* Modal Content */}
         </div>
@@ -1267,7 +1326,7 @@ const Pasien = () => {
         data-backdrop="static"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h4 className="modal-title">Ukuran Kacamata Baru</h4>
@@ -1279,8 +1338,12 @@ const Pasien = () => {
                 ref={closeModalAll}
               ></button>
             </div>
-            <form action="post" onSubmit={submitRekamMedis}>
-              <div className="modal-body">
+            <div className="modal-body">
+              <form
+                id="formUkuranKacamataBaru"
+                action="post"
+                onSubmit={submitRekamMedis}
+              >
                 <div className="row">
                   <div className="col-1 pt-1 text-bold">OD</div>
                   <div className="col p-0">
@@ -1414,6 +1477,27 @@ const Pasien = () => {
                 </div>
                 <div className="form-group mb-1">
                   <label htmlFor="" className="mb-0">
+                    Optik :
+                  </label>
+                  <select
+                    name="optik_id"
+                    id=""
+                    className="form-control"
+                    value={ukuranBaru.optik_id}
+                    onChange={(e) => handleChangeUkuranBaru(e)}
+                  >
+                    <option value="" hidden>
+                      --Nama Optik--
+                    </option>
+                    {dataOptik.map((optik, index) => (
+                      <option key={index} value={optik.id}>
+                        {optik.nama_optik}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
                     Pemeriksa :
                   </label>
                   <input
@@ -1442,33 +1526,34 @@ const Pasien = () => {
                     placeholder="Keluhan / Keterangan lain"
                   ></textarea>
                 </div>
-              </div>
-              <div className="modal-footer justify-content-between">
+              </form>
+            </div>
+            <div className="modal-footer justify-content-between">
+              <button
+                type="button"
+                className="btn btn-default"
+                data-dismiss="modal"
+                data-toggle="modal"
+                data-target="#modal-ukuran-lama"
+              >
+                Back
+              </button>
+              <div>
                 <button
-                  type="button"
-                  className="btn btn-default"
-                  data-dismiss="modal"
-                  data-toggle="modal"
-                  data-target="#modal-ukuran-lama"
+                  type="submit"
+                  form="formUkuranKacamataBaru"
+                  className="btn btn-primary ml-1"
+                  onClick={() => handleClose()}
+                  disabled={
+                    ukuranBaru.rsph.length === 0 ||
+                    ukuranBaru.lsph.length === 0 ||
+                    ukuranBaru.pemeriksa.length === 0
+                  }
                 >
-                  Back
+                  Simpan
                 </button>
-                <div>
-                  <button
-                    type="submit"
-                    className="btn btn-primary ml-1"
-                    onClick={() => handleClose()}
-                    disabled={
-                      ukuranBaru.rsph.length === 0 ||
-                      ukuranBaru.lsph.length === 0 ||
-                      ukuranBaru.pemeriksa.length === 0
-                    }
-                  >
-                    Simpan
-                  </button>
-                </div>
               </div>
-            </form>
+            </div>
           </div>
           {/* Modal Content */}
         </div>
