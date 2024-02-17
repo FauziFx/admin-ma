@@ -171,13 +171,7 @@ const StokLensa = ({ isAdmin }) => {
 
       {/* Modal edit */}
       {isAdmin && (
-        <div
-          className="modal fade"
-          id="modal-edit"
-          data-keyboard="false"
-          data-backdrop="static"
-          aria-hidden="true"
-        >
+        <div className="modal fade" id="modal-edit" aria-hidden="true">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
@@ -187,7 +181,9 @@ const StokLensa = ({ isAdmin }) => {
                   className="close"
                   data-dismiss="modal"
                   aria-label="Close"
-                ></button>
+                >
+                  x
+                </button>
               </div>
               <div className="modal-body">
                 <label htmlFor="">{powerEdit.power_name}</label>

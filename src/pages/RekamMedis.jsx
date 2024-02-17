@@ -380,13 +380,7 @@ const RekamMedis = () => {
       </div>
 
       {/* Modal Konfimasi */}
-      <div
-        className="modal fade"
-        id="modal-konfirmasi"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
+      <div className="modal fade" id="modal-konfirmasi" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-body">
@@ -417,13 +411,7 @@ const RekamMedis = () => {
       </div>
 
       {/* Modal Detail */}
-      <div
-        className="modal fade"
-        id="modal-detail"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
+      <div className="modal fade" id="modal-detail" aria-hidden="true">
         <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
