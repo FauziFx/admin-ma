@@ -27,6 +27,12 @@ const DataOptik = () => {
 
   const columns = [
     {
+      name: "#",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "fit-content",
+    },
+    {
       name: "Nama Optik/Armada",
       selector: (row) => row.nama_optik.toUpperCase(),
       sortable: true,
@@ -162,11 +168,12 @@ const DataOptik = () => {
                     <i className="fas fa-plus"></i>&nbsp; Tambah Optik
                   </button>
                 </div>
-                <div className="card-body">
+                <div className="card-body overflow-y-scroll">
                   <DataTable
                     columns={columns}
                     data={data}
                     pagination
+                    paginationPerPage={50}
                     highlightOnHover
                     customStyles={tableCustomStyles}
                   />
