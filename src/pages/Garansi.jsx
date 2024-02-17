@@ -127,7 +127,11 @@ const Garansi = () => {
     );
 
     try {
-      const response = await axios.get(URL + "api/garansi/klaim/" + row.id);
+      const response = await axios.get(URL + "api/garansi_klaim/" + row.id, {
+        headers: {
+          Authorization: localStorage.getItem("user-token"),
+        },
+      });
       setDetail({
         nama: row.nama,
         frame: row.frame,
@@ -142,7 +146,7 @@ const Garansi = () => {
         status_frame: status_frame,
         tanggal: row.tanggal,
         nama_optik: row.nama_optik,
-        data_klaim: response.data,
+        data_klaim: response.data.data,
       });
     } catch (error) {
       console.log(error);
@@ -184,15 +188,22 @@ const Garansi = () => {
   const submitKlaim = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(URL + "api/garansi/klaim", {
-        garansi_id: klaim.garansi_id,
-        jenis_garansi: klaim.jenis_garansi,
-        kerusakan: klaim.kerusakan,
-        perbaikan: klaim.perbaikan,
-        tanggal: klaim.tanggal,
-      });
+      const response = await axios.post(
+        URL + "api/garansi_klaim",
+        {
+          garansi_id: klaim.garansi_id,
+          jenis_garansi: klaim.jenis_garansi,
+          kerusakan: klaim.kerusakan,
+          perbaikan: klaim.perbaikan,
+          tanggal: klaim.tanggal,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("user-token"),
+          },
+        }
+      );
       alert("Data Berhasil disimpan!");
-      console.log(response);
       getData();
     } catch (error) {
       console.log(error);
@@ -202,7 +213,7 @@ const Garansi = () => {
   const handleClose = async () => {
     closeModal.current.click();
 
-    setInterval(() => {
+    setTimeout(() => {
       setKlaim({
         tanggal: "",
         garansi_id: 0,
@@ -262,13 +273,7 @@ const Garansi = () => {
       </div>
 
       {/* Modal Detail */}
-      <div
-        className="modal fade"
-        id="modal-detail"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
+      <div className="modal fade" id="modal-detail" aria-hidden="true">
         <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
@@ -427,7 +432,7 @@ const Garansi = () => {
                         aria-labelledby={"heading-" + data.id}
                         data-parent="#accordionExample"
                       >
-                        <div className="card-body">
+                        <div className="card-body p-0">
                           <ul>
                             <li>Kerusakan: {data.kerusakan}</li>
                             <li>Perbaikan: {data.perbaikan}</li>
