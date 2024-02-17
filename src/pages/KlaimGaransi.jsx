@@ -69,7 +69,11 @@ const KlaimGaransi = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.get(URL + "api/garansi/klaim");
+      const response = await axios.get(URL + "api/garansi_klaim", {
+        headers: {
+          Authorization: localStorage.getItem("user-token"),
+        },
+      });
       setData(response.data.data);
       setFilter(response.data.data);
     } catch (error) {
@@ -126,13 +130,7 @@ const KlaimGaransi = () => {
       </div>
 
       {/* Modal Detail */}
-      <div
-        className="modal fade"
-        id="modal-detail"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
+      <div className="modal fade" id="modal-detail" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
