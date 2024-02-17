@@ -47,6 +47,9 @@ const PengaturanAkun = () => {
           response = await axios.put(
             URL + "api/change_password/" + user.id,
             {
+              name: user.name,
+              email: user.email,
+              role: user.role,
               oldPassword: user.oldPassword,
               newPassword: user.newPassword,
             },
