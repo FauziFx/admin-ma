@@ -61,6 +61,7 @@ const RekamMedis = () => {
     pd_jauh: "",
     pd_dekat: "",
     tanggal_periksa: "",
+    nama_optik: "",
     pemeriksa: "",
     keterangan: "",
     ukuran_lama: "",
@@ -221,6 +222,7 @@ const RekamMedis = () => {
       pd_jauh: row.pd_jauh,
       pd_dekat: row.pd_dekat,
       tanggal_periksa: row.tanggal_periksa,
+      nama_optik: row.nama_optik,
       pemeriksa: row.pemeriksa,
       keterangan: row.keterangan,
       ukuran_lama: row.ukuran_lama,
@@ -530,6 +532,11 @@ const RekamMedis = () => {
                             .utc()
                             .format("DD/MMM/YYYY")}
                         </td>
+                      </tr>
+                      <tr>
+                        <td>Optik</td>
+                        <td>:</td>
+                        <td>{detail.nama_optik}</td>
                       </tr>
                       <tr>
                         <td>Pemeriksa</td>
