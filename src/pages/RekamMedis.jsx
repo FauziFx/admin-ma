@@ -17,6 +17,7 @@ const RekamMedis = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
   const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
+  const [dataOptik, setDataOptik] = useState([]);
   // Data Pasien
   const [dataPasien, setDataPasien] = useState([]);
   const [searchPasien, setSearchPasien] = useState("");
@@ -42,6 +43,7 @@ const RekamMedis = () => {
     pd_dekat: "",
     tanggal_periksa: moment().locale("id").format("YYYY-MM-DD"),
     pemeriksa: "",
+    optik_id: "",
     keterangan: "",
   });
 
@@ -179,6 +181,7 @@ const RekamMedis = () => {
         pd_dekat: "",
         tanggal_periksa: moment().locale("id").format("YYYY-MM-DD"),
         pemeriksa: "",
+        optik_id: "",
         keterangan: "",
       });
     }, 2000);
@@ -262,6 +265,8 @@ const RekamMedis = () => {
           tanggal_periksa: ukuranBaru.tanggal_periksa,
           pemeriksa: ukuranBaru.pemeriksa,
           keterangan: ukuranBaru.keterangan,
+          ukuran_lama: "n",
+          optik_id: ukuranBaru.optik_id,
           pasien_id: pasienId,
         },
         {
@@ -317,9 +322,19 @@ const RekamMedis = () => {
     }
   };
 
+  const getDataOptik = async () => {
+    try {
+      const response = await axios.get(URL + "api/optik");
+      setDataOptik(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getData();
     getDataPasien();
+    getDataOptik();
   }, []);
 
   // Rekam Medis
@@ -625,8 +640,8 @@ const RekamMedis = () => {
                 ref={closeModal}
               ></button>
             </div>
-            <form onSubmit={submitUkuranbaru}>
-              <div className="modal-body">
+            <div className="modal-body">
+              <form id="formSubmitRekam" onSubmit={submitUkuranbaru}>
                 <table className="table table-sm">
                   <tbody>
                     <tr>
@@ -779,6 +794,27 @@ const RekamMedis = () => {
                 </div>
                 <div className="form-group mb-1">
                   <label htmlFor="" className="mb-0">
+                    Optik :
+                  </label>
+                  <select
+                    name="optik_id"
+                    id=""
+                    className="form-control"
+                    value={ukuranBaru.optik_id}
+                    onChange={(e) => handleChangeUkuranBaru(e)}
+                  >
+                    <option value="" hidden>
+                      --Nama Optik--
+                    </option>
+                    {dataOptik.map((optik, index) => (
+                      <option key={index} value={optik.id}>
+                        {optik.nama_optik}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group mb-1">
+                  <label htmlFor="" className="mb-0">
                     Pemeriksa :
                   </label>
                   <input
@@ -807,33 +843,34 @@ const RekamMedis = () => {
                     placeholder="Keluhan / Keterangan lain"
                   ></textarea>
                 </div>
-              </div>
-              <div className="modal-footer justify-content-between">
+              </form>
+            </div>
+            <div className="modal-footer justify-content-between">
+              <button
+                type="button"
+                className="btn btn-default"
+                data-dismiss="modal"
+                data-toggle="modal"
+                data-target="#modal-pilih-pasien"
+              >
+                Back
+              </button>
+              <div>
                 <button
-                  type="button"
-                  className="btn btn-default"
-                  data-dismiss="modal"
-                  data-toggle="modal"
-                  data-target="#modal-pilih-pasien"
+                  type="submit"
+                  form="formSubmitRekam"
+                  className="btn btn-primary ml-1"
+                  onClick={() => handleClose()}
+                  disabled={
+                    ukuranBaru.rsph.length === 0 ||
+                    ukuranBaru.lsph.length === 0 ||
+                    ukuranBaru.pemeriksa.length === 0
+                  }
                 >
-                  Back
+                  Simpan
                 </button>
-                <div>
-                  <button
-                    type="submit"
-                    className="btn btn-primary ml-1"
-                    onClick={() => handleClose()}
-                    disabled={
-                      ukuranBaru.rsph.length === 0 ||
-                      ukuranBaru.lsph.length === 0 ||
-                      ukuranBaru.pemeriksa.length === 0
-                    }
-                  >
-                    Simpan
-                  </button>
-                </div>
               </div>
-            </form>
+            </div>
           </div>
           {/* Modal Content */}
         </div>
