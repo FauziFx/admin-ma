@@ -7,6 +7,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import LoadingOverlay from "react-loading-overlay-ts";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
 
 const RekamMedis = () => {
   useDocumentTitle("Data Rekam Medis");
@@ -69,6 +71,18 @@ const RekamMedis = () => {
     keterangan: "",
     ukuran_lama: "",
     tanggal: "",
+  });
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
   });
 
   const columns = [
@@ -199,7 +213,10 @@ const RekamMedis = () => {
         },
       });
       if (response.data.success) {
-        alert("Data Berhasil Dihapus...!");
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
         getData();
       } else {
         localStorage.clear();
@@ -282,7 +299,10 @@ const RekamMedis = () => {
         }
       );
       setIsLoadingSubmit(false);
-      alert("Data Berhasil Disimpan...!");
+      Toast.fire({
+        icon: "success",
+        title: response.data.message,
+      });
       await getData();
     } catch (error) {
       console.log(error);

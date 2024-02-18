@@ -6,6 +6,8 @@ import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LoadingOverlay from "react-loading-overlay-ts";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
 
 const Pasien = () => {
   useDocumentTitle("Data Pasien");
@@ -221,6 +223,18 @@ const Pasien = () => {
     },
   ];
 
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
+
   const showDetail = async (row) => {
     setIsLoadingDetail(true);
     try {
@@ -281,8 +295,11 @@ const Pasien = () => {
 
       if (response.data.success === true) {
         setIsLoadingSubmit(false);
-        alert(response.data.message);
         getData();
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
       }
     } catch (error) {
       setIsLoadingSubmit(false);
@@ -296,7 +313,10 @@ const Pasien = () => {
     await submitPasien(e);
     await getData();
     setIsLoadingSubmit(false);
-    // Alert
+    Toast.fire({
+      icon: "success",
+      title: "Data berhasil Disimpan!",
+    });
   };
 
   const submitPasien = async (e) => {
@@ -418,7 +438,10 @@ const Pasien = () => {
     await submitUkuranbaru(pasien_id);
     await getData();
     setIsLoadingSubmit(false);
-    alert("Data Berhasil Disimpan...!");
+    Toast.fire({
+      icon: "success",
+      title: "Data berhasil Disimpan!",
+    });
   };
 
   const getDataOptik = async () => {
@@ -457,7 +480,10 @@ const Pasien = () => {
         },
       });
       if (response.data.success) {
-        alert("Data Berhasil Dihapus...!");
+        Toast.fire({
+          icon: "success",
+          title: "Data berhasil Dihapus!",
+        });
         getData();
       } else {
         localStorage.clear();

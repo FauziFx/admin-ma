@@ -5,6 +5,8 @@ import useDocumentTitle from "../utils/useDocumentTitle";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
 
 const DaftarAkun = () => {
   useDocumentTitle("Daftar Akun");
@@ -29,6 +31,18 @@ const DaftarAkun = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
 
   const columns = [
     { name: "#", selector: (row, index) => index + 1, width: "5%" },
@@ -116,7 +130,10 @@ const DaftarAkun = () => {
         },
       });
       if (response.data.success === true) {
-        alert(response.data.message);
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
         getData();
         handleClose();
       }
@@ -143,7 +160,10 @@ const DaftarAkun = () => {
         }
       );
       if (response.data.success === true) {
-        alert(response.data.message);
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
         getData();
         handleClose();
       }
@@ -154,7 +174,11 @@ const DaftarAkun = () => {
 
   const hapusUser = async (id) => {
     if (id == idLogin) {
-      alert("Anda Sedang Login");
+      Swal.fire({
+        title: "Opps...!!",
+        text: "Kamu sedang Login!!",
+        icon: "warning",
+      });
       handleClose();
     } else {
       try {
@@ -164,7 +188,10 @@ const DaftarAkun = () => {
           },
         });
         if (response.data.success) {
-          alert(response.data.message);
+          Toast.fire({
+            icon: "success",
+            title: response.data.message,
+          });
           getData();
         }
       } catch (error) {

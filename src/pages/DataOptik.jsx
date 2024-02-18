@@ -5,6 +5,8 @@ import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LoadingOverlay from "react-loading-overlay-ts";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
 
 const DataOptik = () => {
   useDocumentTitle("Data Pasien");
@@ -26,6 +28,18 @@ const DataOptik = () => {
       setOptik("");
     }, 1000);
   };
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
 
   const columns = [
     {
@@ -82,7 +96,10 @@ const DataOptik = () => {
       });
 
       if (response.data.success === true) {
-        alert(response.data.message);
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
         getData();
       }
     } catch (error) {
@@ -103,7 +120,10 @@ const DataOptik = () => {
         },
       });
       if (response.data.success === true) {
-        alert(response.data.message);
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
         getData();
       }
     } catch (error) {
@@ -137,7 +157,10 @@ const DataOptik = () => {
         },
       });
       if (response.data.success) {
-        alert(response.data.message);
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
         getData();
       } else {
         localStorage.clear();

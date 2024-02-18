@@ -5,6 +5,8 @@ import DataTable from "react-data-table-component";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingOverlay from "react-loading-overlay-ts";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
 
 const StokLensa = ({ isAdmin }) => {
   const navigate = useNavigate();
@@ -26,6 +28,18 @@ const StokLensa = ({ isAdmin }) => {
     power_name: "",
     inStock: 0,
     stock: 0,
+  });
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
   });
 
   const columns = [
@@ -110,7 +124,10 @@ const StokLensa = ({ isAdmin }) => {
       );
       if (response.data.success) {
         getData();
-        alert(response.data.message);
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
       } else {
         localStorage.clear();
         return navigate("/login");

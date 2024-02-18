@@ -4,6 +4,8 @@ import useDocumentTitle from "../utils/useDocumentTitle";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
 
 const PengaturanAkun = () => {
   const URL = import.meta.env.VITE_API_URL;
@@ -19,6 +21,18 @@ const PengaturanAkun = () => {
       [e.target.name]: e.target.value,
     }));
   };
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
 
   const submitEdit = async (e) => {
     e.preventDefault();
@@ -63,7 +77,10 @@ const PengaturanAkun = () => {
       }
 
       if (response.data.success === true) {
-        alert(response.data.message);
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
         backBtn.current.click();
         setTimeout(() => {
           setUser((prevState) => ({
@@ -73,7 +90,10 @@ const PengaturanAkun = () => {
           }));
         }, 1000);
       } else {
-        alert(response.data.message);
+        Toast.fire({
+          icon: "error",
+          title: response.data.message,
+        });
       }
     } catch (error) {
       console.log(error);

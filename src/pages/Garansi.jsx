@@ -6,6 +6,8 @@ import moment from "moment-timezone";
 import { useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import LoadingOverlay from "react-loading-overlay-ts";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
 
 const Garansi = () => {
   useDocumentTitle("Data Garansi");
@@ -37,6 +39,18 @@ const Garansi = () => {
     jenis_garansi: "",
     kerusakan: "",
     perbaikan: "",
+  });
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
   });
 
   const columns = [
@@ -208,7 +222,10 @@ const Garansi = () => {
         }
       );
       setIsLoadingSubmit(false);
-      alert("Data Berhasil disimpan!");
+      Toast.fire({
+        icon: "success",
+        title: response.data.message,
+      });
       getData();
     } catch (error) {
       setIsLoadingSubmit(false);
