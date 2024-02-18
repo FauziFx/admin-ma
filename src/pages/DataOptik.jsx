@@ -4,10 +4,12 @@ import useDocumentTitle from "../utils/useDocumentTitle";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import LoadingOverlay from "react-loading-overlay-ts";
 
 const DataOptik = () => {
   useDocumentTitle("Data Pasien");
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   const URL = import.meta.env.VITE_API_URL;
   const closeModal = useRef(null);
   const closeModalEdit = useRef(null);
@@ -147,8 +149,10 @@ const DataOptik = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     getData();
-  }, []);
+    setIsLoading(false);
+  }, [isLoading]);
 
   return (
     <div className="content-wrapper">
@@ -169,14 +173,20 @@ const DataOptik = () => {
                   </button>
                 </div>
                 <div className="card-body overflow-y-scroll">
-                  <DataTable
-                    columns={columns}
-                    data={data}
-                    pagination
-                    paginationPerPage={50}
-                    highlightOnHover
-                    customStyles={tableCustomStyles}
-                  />
+                  <LoadingOverlay
+                    active={isLoading}
+                    spinner
+                    text="Loading your content..."
+                  >
+                    <DataTable
+                      columns={columns}
+                      data={data}
+                      pagination
+                      paginationPerPage={50}
+                      highlightOnHover
+                      customStyles={tableCustomStyles}
+                    />
+                  </LoadingOverlay>
                 </div>
               </div>
             </div>

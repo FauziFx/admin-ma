@@ -4,6 +4,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import DataTable from "react-data-table-component";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import LoadingOverlay from "react-loading-overlay-ts";
 
 const StokLensa = ({ isAdmin }) => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const StokLensa = ({ isAdmin }) => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
   const [lensa, setLensa] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   useDocumentTitle(
     "Stok Lensa " +
       lensa.charAt(0).toUpperCase() +
@@ -119,14 +121,18 @@ const StokLensa = ({ isAdmin }) => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     getData();
-  }, []);
+    setIsLoading(false);
+  }, [isLoading]);
 
   useEffect(() => {
+    setIsLoading(true);
     const result = data.filter((item) => {
       return item.power_name.toLowerCase().includes(search.toLocaleLowerCase());
     });
     setFilter(result);
+    setIsLoading(false);
   }, [data, search]);
 
   return (
@@ -155,13 +161,19 @@ const StokLensa = ({ isAdmin }) => {
                   />
                 </div>
                 <div className="card-body">
-                  <DataTable
-                    columns={columns}
-                    data={filter}
-                    pagination
-                    customStyles={tableCustomStyles}
-                    highlightOnHover
-                  />
+                  <LoadingOverlay
+                    active={isLoading}
+                    spinner
+                    text="Loading your content..."
+                  >
+                    <DataTable
+                      columns={columns}
+                      data={filter}
+                      pagination
+                      customStyles={tableCustomStyles}
+                      highlightOnHover
+                    />
+                  </LoadingOverlay>
                 </div>
               </div>
             </div>

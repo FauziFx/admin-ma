@@ -4,6 +4,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import DataTable from "react-data-table-component";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import LoadingOverlay from "react-loading-overlay-ts";
 
 const DataLensa = () => {
   useDocumentTitle("Data Lensa");
@@ -11,6 +12,7 @@ const DataLensa = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const columns = [
     {
@@ -24,6 +26,7 @@ const DataLensa = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     const getData = async () => {
       try {
         const URL = import.meta.env.VITE_API_URL;
@@ -45,16 +48,19 @@ const DataLensa = () => {
     };
 
     getData();
+    setIsLoading(false);
   }, [navigate]);
 
   useEffect(() => {
+    setIsLoading(true);
     const result = data.filter((item) => {
       return item.product_name
         .toLowerCase()
         .includes(search.toLocaleLowerCase());
     });
     setFilter(result);
-  }, [data, search]);
+    setIsLoading(false);
+  }, [data, search, isLoading]);
 
   return (
     <div className="content-wrapper">
@@ -76,14 +82,20 @@ const DataLensa = () => {
                   />
                 </div>
                 <div className="card-body">
-                  <DataTable
-                    columns={columns}
-                    data={filter}
-                    pagination
-                    customStyles={tableCustomStyles}
-                    highlightOnHover
-                    onRowClicked={(row) => handleRowClick(row)}
-                  />
+                  <LoadingOverlay
+                    active={isLoading}
+                    spinner
+                    text="Loading your content..."
+                  >
+                    <DataTable
+                      columns={columns}
+                      data={filter}
+                      pagination
+                      customStyles={tableCustomStyles}
+                      highlightOnHover
+                      onRowClicked={(row) => handleRowClick(row)}
+                    />
+                  </LoadingOverlay>
                 </div>
               </div>
             </div>

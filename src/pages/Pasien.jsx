@@ -5,10 +5,15 @@ import moment from "moment-timezone";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import LoadingOverlay from "react-loading-overlay-ts";
 
 const Pasien = () => {
   useDocumentTitle("Data Pasien");
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const [isLoadingEdit, setIsLoadingEdit] = useState(false);
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
   const URL = import.meta.env.VITE_API_URL;
   const closeModalPasien = useRef(null);
   const closeModalAll = useRef(null);
@@ -184,6 +189,7 @@ const Pasien = () => {
             data-toggle="modal"
             data-target="#modal-edit"
             onClick={() => {
+              setIsLoadingEdit(true);
               setPasienId(row.id);
               let date = new Date(row.ttl.split(",")[1]);
               setPasien({
@@ -196,6 +202,7 @@ const Pasien = () => {
                 nohp: row.nohp,
                 riwayat: row.riwayat,
               });
+              setIsLoadingEdit(false);
             }}
           >
             Edit
@@ -215,6 +222,7 @@ const Pasien = () => {
   ];
 
   const showDetail = async (row) => {
+    setIsLoadingDetail(true);
     try {
       const response = await axios.get(URL + "api/rekam/" + row.id, {
         headers: {
@@ -237,6 +245,7 @@ const Pasien = () => {
           tanggal: row.tanggal,
           data_rekam: response.data.data,
         });
+        setIsLoadingDetail(false);
       } else {
         localStorage.clear();
         return navigate("/login");
@@ -248,6 +257,7 @@ const Pasien = () => {
 
   const submitEditPasien = async (e) => {
     e.preventDefault();
+    setIsLoadingSubmit(true);
     const ttl =
       pasien.tempat +
       ", " +
@@ -270,18 +280,23 @@ const Pasien = () => {
       });
 
       if (response.data.success === true) {
+        setIsLoadingSubmit(false);
         alert(response.data.message);
         getData();
       }
     } catch (error) {
+      setIsLoadingSubmit(false);
       console.log(error);
     }
   };
 
   const simpanPasien = async (e) => {
     e.preventDefault();
+    setIsLoadingSubmit(true);
     await submitPasien(e);
     await getData();
+    setIsLoadingSubmit(false);
+    // Alert
   };
 
   const submitPasien = async (e) => {
@@ -394,14 +409,16 @@ const Pasien = () => {
 
   const submitRekamMedis = async (e) => {
     e.preventDefault();
+    setIsLoadingSubmit(true);
     const pasien_id = await submitPasien(e);
 
     if (ukuranLama.rsph.length !== 0) {
       await submitUkuranLama(pasien_id);
     }
     await submitUkuranbaru(pasien_id);
-    alert("Data Berhasil Disimpan...!");
     await getData();
+    setIsLoadingSubmit(false);
+    alert("Data Berhasil Disimpan...!");
   };
 
   const getDataOptik = async () => {
@@ -452,1114 +469,1146 @@ const Pasien = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     getData();
     getDataOptik();
-  }, []);
+    setIsLoading(false);
+  }, [isLoading]);
 
   useEffect(() => {
+    setIsLoading(true);
     const result = data.filter((item) => {
       return item.nama.toLowerCase().includes(search.toLocaleLowerCase());
     });
     setFilter(result);
+    setIsLoading(false);
   }, [data, search]);
 
   return (
-    <div className="content-wrapper">
-      <Breadcrumb title="Data Pasien" />
-      {/* Main Content */}
-      <div className="content">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="card">
-                <div className="card-header">
-                  <button
-                    className="btn btn-sm btn-primary mb-1"
-                    data-toggle="modal"
-                    data-target="#modal-tambah"
-                  >
-                    <i className="fas fa-plus"></i>&nbsp; Tambah Pasien
-                  </button>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Cari Namanya Disini..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    autoFocus
-                  />
-                </div>
-                <div className="card-body">
-                  <DataTable
-                    columns={columns}
-                    data={filter}
-                    pagination
-                    highlightOnHover
-                    customStyles={tableCustomStyles}
-                  />
+    <LoadingOverlay
+      active={isLoadingSubmit}
+      spinner
+      text="Loading your content..."
+    >
+      <div className="content-wrapper">
+        <Breadcrumb title="Data Pasien" />
+        {/* Main Content */}
+        <div className="content">
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="card">
+                  <div className="card-header">
+                    <button
+                      className="btn btn-sm btn-primary mb-1"
+                      data-toggle="modal"
+                      data-target="#modal-tambah"
+                    >
+                      <i className="fas fa-plus"></i>&nbsp; Tambah Pasien
+                    </button>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Cari Namanya Disini..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="card-body">
+                    <LoadingOverlay
+                      active={isLoading}
+                      spinner
+                      text="Loading your content..."
+                    >
+                      <DataTable
+                        columns={columns}
+                        data={filter}
+                        pagination
+                        highlightOnHover
+                        customStyles={tableCustomStyles}
+                      />
+                    </LoadingOverlay>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Modal Konfimasi */}
-      <div className="modal fade" id="modal-konfirmasi" aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-body">
-              <h3>Konfirmasi Hapus</h3>
-              Hapus Semua Data Rekam Medis <b>{dataHapus.nama}</b> ?
-            </div>
-            <div className="modal-footer justify-content-between">
-              <button
-                type="button"
-                className="btn btn-default"
-                data-dismiss="modal"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                data-dismiss="modal"
-                onClick={() => hapusPasien(dataHapus.id)}
-              >
-                Hapus
-              </button>
-            </div>
-          </div>
-          {/* Modal Content */}
-        </div>
-        {/* Modal Dialog */}
-      </div>
-
-      {/* Modal Edit */}
-      <div
-        className="modal fade"
-        id="modal-edit"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Edit Pasien</h4>
-            </div>
-            <form onSubmit={submitEditPasien}>
-              <div className="modal-body py-0">
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Nama :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.nama}
-                    type="text"
-                    name="nama"
-                    className="form-control"
-                    placeholder="Nama pasien"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Alamat :
-                  </label>
-                  <textarea
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.alamat}
-                    name="alamat"
-                    id=""
-                    cols="30"
-                    rows="2"
-                    className="form-control"
-                    placeholder="Alamat"
-                    required
-                  ></textarea>
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Tempat Lahir :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.tempat}
-                    type="text"
-                    className="form-control"
-                    name="tempat"
-                    placeholder="Tempat Lahir"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Tanggal Lahir :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.tanggal_lahir}
-                    type="date"
-                    className="form-control"
-                    name="tanggal_lahir"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Jenis Kelamin :
-                  </label>
-                  <select
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.jenis_kelamin}
-                    name="jenis_kelamin"
-                    id=""
-                    className="form-control"
-                    required
-                  >
-                    <option value="">-Jenis Kelamin-</option>
-                    <option value="Laki-laki">Laki-laki</option>
-                    <option value="Perempuan">Perempuan</option>
-                  </select>
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Pekerjaan :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.pekerjaan}
-                    type="text"
-                    name="pekerjaan"
-                    className="form-control"
-                    placeholder="Pekerjaan"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    No Hp :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.nohp}
-                    type="number"
-                    name="nohp"
-                    className="form-control"
-                    placeholder="08xxxx"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Riwayat Penyakit :
-                  </label>
-                  <select
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.riwayat}
-                    name="riwayat"
-                    id=""
-                    className="form-control"
-                    required
-                  >
-                    <option value="-">Tidak ada</option>
-                    <option value="Hipertensi">Hipertensi</option>
-                    <option value="Gula Darah">Gula Darah</option>
-                    <option value="Kecelakaan">Kecelakaan</option>
-                    <option value="Operasi Mata">Operasi Mata</option>
-                    <option value="Katarak">Katarak </option>
-                  </select>
-                </div>
+        {/* Modal Konfimasi */}
+        <div className="modal fade" id="modal-konfirmasi" aria-hidden="true">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-body">
+                <h3>Konfirmasi Hapus</h3>
+                Hapus Semua Data Rekam Medis <b>{dataHapus.nama}</b> ?
               </div>
               <div className="modal-footer justify-content-between">
                 <button
                   type="button"
                   className="btn btn-default"
                   data-dismiss="modal"
-                  ref={closeModalEdit}
-                  onClick={() => handleClose()}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  data-dismiss="modal"
+                  onClick={() => hapusPasien(dataHapus.id)}
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+            {/* Modal Content */}
+          </div>
+          {/* Modal Dialog */}
+        </div>
+
+        {/* Modal Edit */}
+        <div
+          className="modal fade"
+          id="modal-edit"
+          data-keyboard="false"
+          data-backdrop="static"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Edit Pasien</h4>
+              </div>
+              <form onSubmit={submitEditPasien}>
+                <div className="modal-body py-0">
+                  <LoadingOverlay
+                    active={isLoadingEdit}
+                    spinner
+                    text="Loading your content..."
+                  >
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        Nama :
+                      </label>
+                      <input
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.nama}
+                        type="text"
+                        name="nama"
+                        className="form-control"
+                        placeholder="Nama pasien"
+                        required
+                      />
+                    </div>
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        Alamat :
+                      </label>
+                      <textarea
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.alamat}
+                        name="alamat"
+                        id=""
+                        cols="30"
+                        rows="2"
+                        className="form-control"
+                        placeholder="Alamat"
+                        required
+                      ></textarea>
+                    </div>
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        Tempat Lahir :
+                      </label>
+                      <input
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.tempat}
+                        type="text"
+                        className="form-control"
+                        name="tempat"
+                        placeholder="Tempat Lahir"
+                        required
+                      />
+                    </div>
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        Tanggal Lahir :
+                      </label>
+                      <input
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.tanggal_lahir}
+                        type="date"
+                        className="form-control"
+                        name="tanggal_lahir"
+                        required
+                      />
+                    </div>
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        Jenis Kelamin :
+                      </label>
+                      <select
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.jenis_kelamin}
+                        name="jenis_kelamin"
+                        id=""
+                        className="form-control"
+                        required
+                      >
+                        <option value="">-Jenis Kelamin-</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                      </select>
+                    </div>
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        Pekerjaan :
+                      </label>
+                      <input
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.pekerjaan}
+                        type="text"
+                        name="pekerjaan"
+                        className="form-control"
+                        placeholder="Pekerjaan"
+                        required
+                      />
+                    </div>
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        No Hp :
+                      </label>
+                      <input
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.nohp}
+                        type="number"
+                        name="nohp"
+                        className="form-control"
+                        placeholder="08xxxx"
+                        required
+                      />
+                    </div>
+                    <div className="form-group mb-1">
+                      <label htmlFor="" className="mb-0">
+                        Riwayat Penyakit :
+                      </label>
+                      <select
+                        onChange={(e) => handleChangePasien(e)}
+                        value={pasien.riwayat}
+                        name="riwayat"
+                        id=""
+                        className="form-control"
+                        required
+                      >
+                        <option value="-">Tidak ada</option>
+                        <option value="Hipertensi">Hipertensi</option>
+                        <option value="Gula Darah">Gula Darah</option>
+                        <option value="Kecelakaan">Kecelakaan</option>
+                        <option value="Operasi Mata">Operasi Mata</option>
+                        <option value="Katarak">Katarak </option>
+                      </select>
+                    </div>
+                  </LoadingOverlay>
+                </div>
+                <div className="modal-footer justify-content-between">
+                  <button
+                    type="button"
+                    className="btn btn-default"
+                    data-dismiss="modal"
+                    ref={closeModalEdit}
+                    onClick={() => handleClose()}
+                  >
+                    Close
+                  </button>
+                  <div>
+                    <button
+                      type="submit"
+                      className="btn btn-success"
+                      onClick={() => handleClose()}
+                      disabled={
+                        pasien.nama.length === 0 ||
+                        pasien.alamat.length === 0 ||
+                        pasien.tempat.length === 0 ||
+                        pasien.tanggal_lahir.length === 0 ||
+                        pasien.jenis_kelamin.length === 0 ||
+                        pasien.pekerjaan.length === 0 ||
+                        pasien.nohp.length === 0
+                      }
+                    >
+                      Simpan
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            {/* Modal Content */}
+          </div>
+          {/* Modal Dialog */}
+        </div>
+
+        {/* Modal Detail */}
+        <div className="modal fade" id="modal-detail" aria-hidden="true">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Detail</h4>
+              </div>
+              <div className="modal-body modal-body-overflow">
+                <LoadingOverlay
+                  active={isLoadingDetail}
+                  spinner
+                  text="Loading your content..."
+                >
+                  <table id="table-detail" className=" table table-sm">
+                    <tbody>
+                      <tr>
+                        <td>Tanggal</td>
+                        <td>:&nbsp;</td>
+                        <td>
+                          {moment.utc(detail.tanggal).format("DD/MMM/YYYY")}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Nama</td>
+                        <td>:</td>
+                        <td>{detail.nama.toUpperCase()}</td>
+                      </tr>
+                      <tr>
+                        <td>Alamat</td>
+                        <td>:</td>
+                        <td>{detail.alamat}</td>
+                      </tr>
+                      <tr>
+                        <td>TTL</td>
+                        <td>:</td>
+                        <td>{detail.usia} Tahun</td>
+                      </tr>
+                      <tr>
+                        <td>TTL</td>
+                        <td>:</td>
+                        <td>{detail.ttl}</td>
+                      </tr>
+                      <tr>
+                        <td>Jenis Kelamin</td>
+                        <td>:</td>
+                        <td>{detail.jenis_kelamin}</td>
+                      </tr>
+                      <tr>
+                        <td>Pekerjaan</td>
+                        <td>:</td>
+                        <td>{detail.pekerjaan}</td>
+                      </tr>
+                      <tr>
+                        <td>No Hp</td>
+                        <td>:</td>
+                        <td>{detail.nohp}</td>
+                      </tr>
+                      <tr>
+                        <td>Riwayat</td>
+                        <td>:</td>
+                        <td>{detail.riwayat}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  {detail.data_rekam.length !== 0 &&
+                    detail.data_rekam.map((data) => (
+                      <div
+                        className="accordion"
+                        id="accordionExample"
+                        key={data.id}
+                      >
+                        <div className="card">
+                          <div
+                            className="card-header p-1"
+                            id={"heading-" + data.id}
+                          >
+                            <h2 className="mb-0">
+                              <button
+                                className="btn btn-link btn-block text-left"
+                                type="button"
+                                data-toggle="collapse"
+                                data-target={"#collapse-" + data.id}
+                                aria-expanded="true"
+                                aria-controls={"collapse-" + data.id}
+                              >
+                                # {moment(data.tanggal).format("DD/MM/YYYY")}
+                                {data.ukuran_lama === "y" ? " Ukuran Lama" : ""}
+                              </button>
+                            </h2>
+                          </div>
+
+                          <div
+                            id={"collapse-" + data.id}
+                            className="collapse"
+                            aria-labelledby={"heading-" + data.id}
+                            data-parent="#accordionExample"
+                          >
+                            <div className="card-body py-1">
+                              <table className="mb-1">
+                                <tbody>
+                                  {data.optik_id !== null && (
+                                    <tr>
+                                      <td>
+                                        <b>Optik</b>
+                                      </td>
+                                      <td>:</td>
+                                      <td>{data.nama_optik}</td>
+                                    </tr>
+                                  )}
+                                  <tr>
+                                    <td>
+                                      <b>Pemeriksa</b>
+                                    </td>
+                                    <td>:</td>
+                                    <td>{data.pemeriksa}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <b>Keterangan</b>
+                                    </td>
+                                    <td>:</td>
+                                    <td>{data.keterangan}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <table className="table-small">
+                                <thead>
+                                  <tr>
+                                    <th></th>
+                                    <th>Sph</th>
+                                    <th>Cyl</th>
+                                    <th>Axis</th>
+                                    <th>Add</th>
+                                    <th>PD</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>OD</td>
+                                    <td>{data.od.split("/")[0]}</td>
+                                    <td>{data.od.split("/")[1]}</td>
+                                    <td>{data.od.split("/")[2]}</td>
+                                    <td>{data.od.split("/")[3]}</td>
+                                    <td rowSpan={2}>
+                                      {data.pd_jauh !== null && data.pd_jauh}/
+                                      {data.pd_dekat !== null && data.pd_dekat}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>OS</td>
+                                    <td>{data.os.split("/")[0]}</td>
+                                    <td>{data.os.split("/")[1]}</td>
+                                    <td>{data.os.split("/")[2]}</td>
+                                    <td>{data.os.split("/")[3]}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </LoadingOverlay>
+              </div>
+              <div className="modal-footer justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
                 >
                   Close
                 </button>
-                <div>
-                  <button
-                    type="submit"
-                    className="btn btn-success"
-                    onClick={() => handleClose()}
-                    disabled={
-                      pasien.nama.length === 0 ||
-                      pasien.alamat.length === 0 ||
-                      pasien.tempat.length === 0 ||
-                      pasien.tanggal_lahir.length === 0 ||
-                      pasien.jenis_kelamin.length === 0 ||
-                      pasien.pekerjaan.length === 0 ||
-                      pasien.nohp.length === 0
-                    }
-                  >
-                    Simpan
-                  </button>
-                </div>
               </div>
-            </form>
-          </div>
-          {/* Modal Content */}
-        </div>
-        {/* Modal Dialog */}
-      </div>
-
-      {/* Modal Detail */}
-      <div className="modal fade" id="modal-detail" aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Detail</h4>
             </div>
-            <div className="modal-body modal-body-overflow">
-              <table id="table-detail" className=" table table-sm">
-                <tbody>
-                  <tr>
-                    <td>Tanggal</td>
-                    <td>:&nbsp;</td>
-                    <td>{moment.utc(detail.tanggal).format("DD/MMM/YYYY")}</td>
-                  </tr>
-                  <tr>
-                    <td>Nama</td>
-                    <td>:</td>
-                    <td>{detail.nama.toUpperCase()}</td>
-                  </tr>
-                  <tr>
-                    <td>Alamat</td>
-                    <td>:</td>
-                    <td>{detail.alamat}</td>
-                  </tr>
-                  <tr>
-                    <td>TTL</td>
-                    <td>:</td>
-                    <td>{detail.usia} Tahun</td>
-                  </tr>
-                  <tr>
-                    <td>TTL</td>
-                    <td>:</td>
-                    <td>{detail.ttl}</td>
-                  </tr>
-                  <tr>
-                    <td>Jenis Kelamin</td>
-                    <td>:</td>
-                    <td>{detail.jenis_kelamin}</td>
-                  </tr>
-                  <tr>
-                    <td>Pekerjaan</td>
-                    <td>:</td>
-                    <td>{detail.pekerjaan}</td>
-                  </tr>
-                  <tr>
-                    <td>No Hp</td>
-                    <td>:</td>
-                    <td>{detail.nohp}</td>
-                  </tr>
-                  <tr>
-                    <td>Riwayat</td>
-                    <td>:</td>
-                    <td>{detail.riwayat}</td>
-                  </tr>
-                </tbody>
-              </table>
-              {detail.data_rekam.length !== 0 &&
-                detail.data_rekam.map((data) => (
-                  <div
-                    className="accordion"
-                    id="accordionExample"
-                    key={data.id}
-                  >
-                    <div className="card">
-                      <div
-                        className="card-header p-1"
-                        id={"heading-" + data.id}
-                      >
-                        <h2 className="mb-0">
-                          <button
-                            className="btn btn-link btn-block text-left"
-                            type="button"
-                            data-toggle="collapse"
-                            data-target={"#collapse-" + data.id}
-                            aria-expanded="true"
-                            aria-controls={"collapse-" + data.id}
-                          >
-                            # {moment(data.tanggal).format("DD/MM/YYYY")}
-                            {data.ukuran_lama === "y" ? " Ukuran Lama" : ""}
-                          </button>
-                        </h2>
-                      </div>
+            {/* Modal Content */}
+          </div>
+          {/* Modal Dialog */}
+        </div>
 
-                      <div
-                        id={"collapse-" + data.id}
-                        className="collapse"
-                        aria-labelledby={"heading-" + data.id}
-                        data-parent="#accordionExample"
-                      >
-                        <div className="card-body py-1">
-                          <table className="mb-1">
-                            <tbody>
-                              {data.optik_id !== null && (
-                                <tr>
-                                  <td>
-                                    <b>Optik</b>
-                                  </td>
-                                  <td>:</td>
-                                  <td>{data.nama_optik}</td>
-                                </tr>
-                              )}
-                              <tr>
-                                <td>
-                                  <b>Pemeriksa</b>
-                                </td>
-                                <td>:</td>
-                                <td>{data.pemeriksa}</td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <b>Keterangan</b>
-                                </td>
-                                <td>:</td>
-                                <td>{data.keterangan}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                          <table className="table-small">
-                            <thead>
-                              <tr>
-                                <th></th>
-                                <th>Sph</th>
-                                <th>Cyl</th>
-                                <th>Axis</th>
-                                <th>Add</th>
-                                <th>PD</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>OD</td>
-                                <td>{data.od.split("/")[0]}</td>
-                                <td>{data.od.split("/")[1]}</td>
-                                <td>{data.od.split("/")[2]}</td>
-                                <td>{data.od.split("/")[3]}</td>
-                                <td rowSpan={2}>
-                                  {data.pd_jauh !== null && data.pd_jauh}/
-                                  {data.pd_dekat !== null && data.pd_dekat}
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>OS</td>
-                                <td>{data.os.split("/")[0]}</td>
-                                <td>{data.os.split("/")[1]}</td>
-                                <td>{data.os.split("/")[2]}</td>
-                                <td>{data.os.split("/")[3]}</td>
-                              </tr>
-                            </tbody>
-                          </table>
+        {/* Modal Tambah */}
+        <div
+          className="modal fade"
+          id="modal-tambah"
+          data-keyboard="false"
+          data-backdrop="static"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Tambah Pasien</h4>
+                <button
+                  type="button"
+                  className="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                  onClick={() => handleClose()}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+              <form onSubmit={simpanPasien}>
+                <div className="modal-body modal-body-scroll py-0">
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      Nama :
+                    </label>
+                    <input
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.nama}
+                      type="text"
+                      name="nama"
+                      className="form-control"
+                      placeholder="Nama pasien"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      Alamat :
+                    </label>
+                    <textarea
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.alamat}
+                      name="alamat"
+                      id=""
+                      cols="30"
+                      rows="2"
+                      className="form-control"
+                      placeholder="Alamat"
+                      required
+                    ></textarea>
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      Tempat Lahir :
+                    </label>
+                    <input
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.tempat}
+                      type="text"
+                      className="form-control"
+                      name="tempat"
+                      placeholder="Tempat Lahir"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mb-1">
+                    <label htmlFor="" className="mb-0">
+                      Usia :
+                    </label>
+                    <div className="input-group">
+                      <input
+                        onChange={(e) => handleChangeUsiaPasien(e)}
+                        value={usia}
+                        type="number"
+                        className="form-control"
+                        name="usia"
+                        placeholder="Usia"
+                      />
+                      <span className="input-group-text">Tahun</span>
+                    </div>
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      Tanggal Lahir :
+                    </label>
+                    <input
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.tanggal_lahir}
+                      type="date"
+                      className="form-control"
+                      name="tanggal_lahir"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      Jenis Kelamin :
+                    </label>
+                    <select
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.jenis_kelamin}
+                      name="jenis_kelamin"
+                      id=""
+                      className="form-control"
+                      required
+                    >
+                      <option value="">-Jenis Kelamin-</option>
+                      <option value="Laki-laki">Laki-laki</option>
+                      <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      Pekerjaan :
+                    </label>
+                    <input
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.pekerjaan}
+                      type="text"
+                      name="pekerjaan"
+                      className="form-control"
+                      placeholder="Pekerjaan"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      No Hp :
+                    </label>
+                    <input
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.nohp}
+                      type="number"
+                      name="nohp"
+                      className="form-control"
+                      placeholder="08xxxx"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className="mb-0">
+                      Riwayat Penyakit :
+                    </label>
+                    <select
+                      onChange={(e) => handleChangePasien(e)}
+                      value={pasien.riwayat}
+                      name="riwayat"
+                      id=""
+                      className="form-control"
+                      required
+                    >
+                      <option value="-">Tidak ada</option>
+                      <option value="Hipertensi">Hipertensi</option>
+                      <option value="Gula Darah">Gula Darah</option>
+                      <option value="Kecelakaan">Kecelakaan</option>
+                      <option value="Operasi Mata">Operasi Mata</option>
+                      <option value="Katarak">Katarak </option>
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-footer justify-content-between">
+                  <button
+                    type="button"
+                    className="btn btn-default"
+                    data-dismiss="modal"
+                    ref={closeModalPasien}
+                    onClick={() => handleClose()}
+                  >
+                    Close
+                  </button>
+                  <div>
+                    <button
+                      type="submit"
+                      className="btn btn-success"
+                      onClick={() => handleClose()}
+                      disabled={
+                        pasien.nama.length === 0 ||
+                        pasien.alamat.length === 0 ||
+                        pasien.tempat.length === 0 ||
+                        pasien.tanggal_lahir.length === 0 ||
+                        pasien.jenis_kelamin.length === 0 ||
+                        pasien.pekerjaan.length === 0 ||
+                        pasien.nohp.length === 0
+                      }
+                    >
+                      Simpan
+                    </button>
+                    <button
+                      className="btn btn-primary ml-1"
+                      data-dismiss="modal"
+                      data-toggle="modal"
+                      data-target="#modal-ukuran-lama"
+                      disabled={
+                        pasien.nama.length === 0 ||
+                        pasien.alamat.length === 0 ||
+                        pasien.tempat.length === 0 ||
+                        pasien.tanggal_lahir.length === 0 ||
+                        pasien.jenis_kelamin.length === 0 ||
+                        pasien.pekerjaan.length === 0 ||
+                        pasien.nohp.length === 0
+                      }
+                    >
+                      Next <i className="fas fa-chevron-right fa-xs"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            {/* Modal Content */}
+          </div>
+          {/* Modal Dialog */}
+        </div>
+
+        {/* Modal Ukuran Lama */}
+        <div
+          className="modal fade"
+          id="modal-ukuran-lama"
+          data-keyboard="false"
+          data-backdrop="static"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Ukuran Kacamata Lama</h4>
+              </div>
+              <div className="modal-body">
+                <form id="formUkuranKacamataLama" action="post">
+                  <div className="row">
+                    <div className="col-1 pt-1 text-bold">OD</div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.rsph}
+                        type="text"
+                        className="form-control"
+                        placeholder="SPH"
+                        name="rsph"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.rcyl}
+                        type="text"
+                        className="form-control"
+                        placeholder="CYL"
+                        name="rcyl"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.raxis}
+                        type="text"
+                        className="form-control"
+                        placeholder="AXIS"
+                        name="raxis"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.radd}
+                        type="text"
+                        className="form-control"
+                        placeholder="ADD"
+                        name="radd"
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-1 pt-1 text-bold">OS</div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.lsph}
+                        type="text"
+                        className="form-control"
+                        placeholder="SPH"
+                        name="lsph"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.lcyl}
+                        type="text"
+                        className="form-control"
+                        placeholder="CYL"
+                        name="lcyl"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.laxis}
+                        type="text"
+                        className="form-control"
+                        placeholder="AXIS"
+                        name="laxis"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranLama(e)}
+                        value={ukuranLama.ladd}
+                        type="text"
+                        className="form-control"
+                        placeholder="ADD"
+                        name="ladd"
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group mb-1">
+                    <label htmlFor="" className="mb-0">
+                      PD :
+                    </label>
+                    <div className="row">
+                      <div className="col">
+                        <div className="form-group">
+                          <input
+                            onChange={(e) => handleChangeUkuranLama(e)}
+                            value={ukuranLama.pd_jauh}
+                            type="text"
+                            className="form-control"
+                            placeholder="PD Jauh"
+                            name="pd_jauh"
+                          />
+                        </div>
+                      </div>
+                      <div className="col">
+                        <div className="form-group">
+                          <input
+                            onChange={(e) => handleChangeUkuranLama(e)}
+                            value={ukuranLama.pd_dekat}
+                            type="text"
+                            className="form-control"
+                            placeholder="PD Dekat"
+                            name="pd_dekat"
+                          />
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
-            </div>
-            <div className="modal-footer justify-content-between">
-              <button
-                type="button"
-                className="btn btn-default"
-                data-dismiss="modal"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-          {/* Modal Content */}
-        </div>
-        {/* Modal Dialog */}
-      </div>
-
-      {/* Modal Tambah */}
-      <div
-        className="modal fade"
-        id="modal-tambah"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Tambah Pasien</h4>
-              <button
-                type="button"
-                className="close"
-                data-dismiss="modal"
-                aria-label="Close"
-                onClick={() => handleClose()}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-            </div>
-            <form onSubmit={simpanPasien}>
-              <div className="modal-body modal-body-scroll py-0">
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    Nama :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.nama}
-                    type="text"
-                    name="nama"
-                    className="form-control"
-                    placeholder="Nama pasien"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    Alamat :
-                  </label>
-                  <textarea
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.alamat}
-                    name="alamat"
-                    id=""
-                    cols="30"
-                    rows="2"
-                    className="form-control"
-                    placeholder="Alamat"
-                    required
-                  ></textarea>
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    Tempat Lahir :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.tempat}
-                    type="text"
-                    className="form-control"
-                    name="tempat"
-                    placeholder="Tempat Lahir"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Usia :
-                  </label>
-                  <div className="input-group">
-                    <input
-                      onChange={(e) => handleChangeUsiaPasien(e)}
-                      value={usia}
-                      type="number"
+                  <div className="form-group">
+                    <label htmlFor="">Keluhan :</label>
+                    <textarea
+                      onChange={(e) => handleChangeUkuranLama(e)}
+                      value={ukuranLama.keterangan}
+                      name="keterangan"
                       className="form-control"
-                      name="usia"
-                      placeholder="Usia"
-                    />
-                    <span className="input-group-text">Tahun</span>
+                      id=""
+                      cols="30"
+                      rows="2"
+                      placeholder="Keluhan / Keterangan lain"
+                    ></textarea>
                   </div>
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    Tanggal Lahir :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.tanggal_lahir}
-                    type="date"
-                    className="form-control"
-                    name="tanggal_lahir"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    Jenis Kelamin :
-                  </label>
-                  <select
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.jenis_kelamin}
-                    name="jenis_kelamin"
-                    id=""
-                    className="form-control"
-                    required
-                  >
-                    <option value="">-Jenis Kelamin-</option>
-                    <option value="Laki-laki">Laki-laki</option>
-                    <option value="Perempuan">Perempuan</option>
-                  </select>
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    Pekerjaan :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.pekerjaan}
-                    type="text"
-                    name="pekerjaan"
-                    className="form-control"
-                    placeholder="Pekerjaan"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    No Hp :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.nohp}
-                    type="number"
-                    name="nohp"
-                    className="form-control"
-                    placeholder="08xxxx"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className="mb-0">
-                    Riwayat Penyakit :
-                  </label>
-                  <select
-                    onChange={(e) => handleChangePasien(e)}
-                    value={pasien.riwayat}
-                    name="riwayat"
-                    id=""
-                    className="form-control"
-                    required
-                  >
-                    <option value="-">Tidak ada</option>
-                    <option value="Hipertensi">Hipertensi</option>
-                    <option value="Gula Darah">Gula Darah</option>
-                    <option value="Kecelakaan">Kecelakaan</option>
-                    <option value="Operasi Mata">Operasi Mata</option>
-                    <option value="Katarak">Katarak </option>
-                  </select>
-                </div>
+                </form>
               </div>
               <div className="modal-footer justify-content-between">
                 <button
                   type="button"
                   className="btn btn-default"
                   data-dismiss="modal"
-                  ref={closeModalPasien}
-                  onClick={() => handleClose()}
+                  data-toggle="modal"
+                  data-target="#modal-tambah"
                 >
-                  Close
+                  Back
                 </button>
                 <div>
                   <button
-                    type="submit"
-                    className="btn btn-success"
-                    onClick={() => handleClose()}
+                    type="button"
+                    className="btn btn-secondary ml-1"
+                    data-dismiss="modal"
+                    data-toggle="modal"
+                    data-target="#modal-ukuran-baru"
+                    onClick={() => {
+                      setUkuranLama({
+                        rsph: "",
+                        rcyl: "",
+                        raxis: "",
+                        radd: "",
+                        lsph: "",
+                        lcyl: "",
+                        laxis: "",
+                        ladd: "",
+                        pd_jauh: "",
+                        pd_dekat: "",
+                        keterangan: "",
+                      });
+                      setUkuranBaru((ukuranBaru) => ({
+                        ...ukuranBaru,
+                        ...{
+                          tanggal_periksa: moment()
+                            .locale("id")
+                            .format("YYYY-MM-DD"),
+                        },
+                      }));
+                    }}
                     disabled={
-                      pasien.nama.length === 0 ||
-                      pasien.alamat.length === 0 ||
-                      pasien.tempat.length === 0 ||
-                      pasien.tanggal_lahir.length === 0 ||
-                      pasien.jenis_kelamin.length === 0 ||
-                      pasien.pekerjaan.length === 0 ||
-                      pasien.nohp.length === 0
+                      ukuranLama.rsph.length !== 0 &&
+                      ukuranLama.lsph.length !== 0
                     }
                   >
-                    Simpan
+                    Skip
                   </button>
                   <button
                     className="btn btn-primary ml-1"
                     data-dismiss="modal"
                     data-toggle="modal"
-                    data-target="#modal-ukuran-lama"
+                    data-target="#modal-ukuran-baru"
                     disabled={
-                      pasien.nama.length === 0 ||
-                      pasien.alamat.length === 0 ||
-                      pasien.tempat.length === 0 ||
-                      pasien.tanggal_lahir.length === 0 ||
-                      pasien.jenis_kelamin.length === 0 ||
-                      pasien.pekerjaan.length === 0 ||
-                      pasien.nohp.length === 0
+                      ukuranLama.rsph.length === 0 ||
+                      ukuranLama.lsph.length === 0
+                    }
+                    onClick={() =>
+                      setUkuranBaru((ukuranBaru) => ({
+                        ...ukuranBaru,
+                        ...{
+                          tanggal_periksa: moment()
+                            .locale("id")
+                            .format("YYYY-MM-DD"),
+                        },
+                      }))
                     }
                   >
                     Next <i className="fas fa-chevron-right fa-xs"></i>
                   </button>
                 </div>
               </div>
-            </form>
+            </div>
+            {/* Modal Content */}
           </div>
-          {/* Modal Content */}
+          {/* Modal Dialog */}
         </div>
-        {/* Modal Dialog */}
-      </div>
 
-      {/* Modal Ukuran Lama */}
-      <div
-        className="modal fade"
-        id="modal-ukuran-lama"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-scrollable">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Ukuran Kacamata Lama</h4>
-            </div>
-            <div className="modal-body">
-              <form id="formUkuranKacamataLama" action="post">
-                <div className="row">
-                  <div className="col-1 pt-1 text-bold">OD</div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.rsph}
-                      type="text"
-                      className="form-control"
-                      placeholder="SPH"
-                      name="rsph"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.rcyl}
-                      type="text"
-                      className="form-control"
-                      placeholder="CYL"
-                      name="rcyl"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.raxis}
-                      type="text"
-                      className="form-control"
-                      placeholder="AXIS"
-                      name="raxis"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.radd}
-                      type="text"
-                      className="form-control"
-                      placeholder="ADD"
-                      name="radd"
-                    />
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-1 pt-1 text-bold">OS</div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.lsph}
-                      type="text"
-                      className="form-control"
-                      placeholder="SPH"
-                      name="lsph"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.lcyl}
-                      type="text"
-                      className="form-control"
-                      placeholder="CYL"
-                      name="lcyl"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.laxis}
-                      type="text"
-                      className="form-control"
-                      placeholder="AXIS"
-                      name="laxis"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranLama(e)}
-                      value={ukuranLama.ladd}
-                      type="text"
-                      className="form-control"
-                      placeholder="ADD"
-                      name="ladd"
-                    />
-                  </div>
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    PD :
-                  </label>
-                  <div className="row">
-                    <div className="col">
-                      <div className="form-group">
-                        <input
-                          onChange={(e) => handleChangeUkuranLama(e)}
-                          value={ukuranLama.pd_jauh}
-                          type="text"
-                          className="form-control"
-                          placeholder="PD Jauh"
-                          name="pd_jauh"
-                        />
-                      </div>
-                    </div>
-                    <div className="col">
-                      <div className="form-group">
-                        <input
-                          onChange={(e) => handleChangeUkuranLama(e)}
-                          value={ukuranLama.pd_dekat}
-                          type="text"
-                          className="form-control"
-                          placeholder="PD Dekat"
-                          name="pd_dekat"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="">Keluhan :</label>
-                  <textarea
-                    onChange={(e) => handleChangeUkuranLama(e)}
-                    value={ukuranLama.keterangan}
-                    name="keterangan"
-                    className="form-control"
-                    id=""
-                    cols="30"
-                    rows="2"
-                    placeholder="Keluhan / Keterangan lain"
-                  ></textarea>
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer justify-content-between">
-              <button
-                type="button"
-                className="btn btn-default"
-                data-dismiss="modal"
-                data-toggle="modal"
-                data-target="#modal-tambah"
-              >
-                Back
-              </button>
-              <div>
+        {/* Modal Ukuran Baru */}
+        <div
+          className="modal fade"
+          id="modal-ukuran-baru"
+          data-keyboard="false"
+          data-backdrop="static"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Ukuran Kacamata Baru</h4>
                 <button
                   type="button"
-                  className="btn btn-secondary ml-1"
+                  className="close"
                   data-dismiss="modal"
-                  data-toggle="modal"
-                  data-target="#modal-ukuran-baru"
-                  onClick={() => {
-                    setUkuranLama({
-                      rsph: "",
-                      rcyl: "",
-                      raxis: "",
-                      radd: "",
-                      lsph: "",
-                      lcyl: "",
-                      laxis: "",
-                      ladd: "",
-                      pd_jauh: "",
-                      pd_dekat: "",
-                      keterangan: "",
-                    });
-                    setUkuranBaru((ukuranBaru) => ({
-                      ...ukuranBaru,
-                      ...{
-                        tanggal_periksa: moment()
-                          .locale("id")
-                          .format("YYYY-MM-DD"),
-                      },
-                    }));
-                  }}
-                  disabled={
-                    ukuranLama.rsph.length !== 0 && ukuranLama.lsph.length !== 0
-                  }
-                >
-                  Skip
-                </button>
-                <button
-                  className="btn btn-primary ml-1"
-                  data-dismiss="modal"
-                  data-toggle="modal"
-                  data-target="#modal-ukuran-baru"
-                  disabled={
-                    ukuranLama.rsph.length === 0 || ukuranLama.lsph.length === 0
-                  }
-                  onClick={() =>
-                    setUkuranBaru((ukuranBaru) => ({
-                      ...ukuranBaru,
-                      ...{
-                        tanggal_periksa: moment()
-                          .locale("id")
-                          .format("YYYY-MM-DD"),
-                      },
-                    }))
-                  }
-                >
-                  Next <i className="fas fa-chevron-right fa-xs"></i>
-                </button>
+                  aria-label="Close"
+                  ref={closeModalAll}
+                ></button>
               </div>
-            </div>
-          </div>
-          {/* Modal Content */}
-        </div>
-        {/* Modal Dialog */}
-      </div>
-
-      {/* Modal Ukuran Baru */}
-      <div
-        className="modal fade"
-        id="modal-ukuran-baru"
-        data-keyboard="false"
-        data-backdrop="static"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-scrollable">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Ukuran Kacamata Baru</h4>
-              <button
-                type="button"
-                className="close"
-                data-dismiss="modal"
-                aria-label="Close"
-                ref={closeModalAll}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <form
-                id="formUkuranKacamataBaru"
-                action="post"
-                onSubmit={submitRekamMedis}
-              >
-                <div className="row">
-                  <div className="col-1 pt-1 text-bold">OD</div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.rsph}
-                      type="text"
-                      className="form-control"
-                      placeholder="SPH"
-                      name="rsph"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.rcyl}
-                      type="text"
-                      className="form-control"
-                      placeholder="CYL"
-                      name="rcyl"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.raxis}
-                      type="text"
-                      className="form-control"
-                      placeholder="AXIS"
-                      name="raxis"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.radd}
-                      type="text"
-                      className="form-control"
-                      placeholder="ADD"
-                      name="radd"
-                    />
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-1 pt-1 text-bold">OS</div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.lsph}
-                      type="text"
-                      className="form-control"
-                      placeholder="SPH"
-                      name="lsph"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.lcyl}
-                      type="text"
-                      className="form-control"
-                      placeholder="CYL"
-                      name="lcyl"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.laxis}
-                      type="text"
-                      className="form-control"
-                      placeholder="AXIS"
-                      name="laxis"
-                    />
-                  </div>
-                  <div className="col p-0">
-                    <input
-                      onChange={(e) => handleChangeUkuranBaru(e)}
-                      value={ukuranBaru.ladd}
-                      type="text"
-                      className="form-control"
-                      placeholder="ADD"
-                      name="ladd"
-                    />
-                  </div>
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    PD :
-                  </label>
+              <div className="modal-body">
+                <form
+                  id="formUkuranKacamataBaru"
+                  action="post"
+                  onSubmit={submitRekamMedis}
+                >
                   <div className="row">
-                    <div className="col">
-                      <div className="form-group">
-                        <input
-                          onChange={(e) => handleChangeUkuranBaru(e)}
-                          value={ukuranBaru.pd_jauh}
-                          type="text"
-                          className="form-control"
-                          placeholder="PD Jauh"
-                          name="pd_jauh"
-                          required
-                        />
-                      </div>
+                    <div className="col-1 pt-1 text-bold">OD</div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.rsph}
+                        type="text"
+                        className="form-control"
+                        placeholder="SPH"
+                        name="rsph"
+                      />
                     </div>
-                    <div className="col">
-                      <div className="form-group">
-                        <input
-                          onChange={(e) => handleChangeUkuranBaru(e)}
-                          value={ukuranBaru.pd_dekat}
-                          type="text"
-                          className="form-control"
-                          placeholder="PD Dekat"
-                          name="pd_dekat"
-                        />
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.rcyl}
+                        type="text"
+                        className="form-control"
+                        placeholder="CYL"
+                        name="rcyl"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.raxis}
+                        type="text"
+                        className="form-control"
+                        placeholder="AXIS"
+                        name="raxis"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.radd}
+                        type="text"
+                        className="form-control"
+                        placeholder="ADD"
+                        name="radd"
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-1 pt-1 text-bold">OS</div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.lsph}
+                        type="text"
+                        className="form-control"
+                        placeholder="SPH"
+                        name="lsph"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.lcyl}
+                        type="text"
+                        className="form-control"
+                        placeholder="CYL"
+                        name="lcyl"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.laxis}
+                        type="text"
+                        className="form-control"
+                        placeholder="AXIS"
+                        name="laxis"
+                      />
+                    </div>
+                    <div className="col p-0">
+                      <input
+                        onChange={(e) => handleChangeUkuranBaru(e)}
+                        value={ukuranBaru.ladd}
+                        type="text"
+                        className="form-control"
+                        placeholder="ADD"
+                        name="ladd"
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group mb-1">
+                    <label htmlFor="" className="mb-0">
+                      PD :
+                    </label>
+                    <div className="row">
+                      <div className="col">
+                        <div className="form-group">
+                          <input
+                            onChange={(e) => handleChangeUkuranBaru(e)}
+                            value={ukuranBaru.pd_jauh}
+                            type="text"
+                            className="form-control"
+                            placeholder="PD Jauh"
+                            name="pd_jauh"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col">
+                        <div className="form-group">
+                          <input
+                            onChange={(e) => handleChangeUkuranBaru(e)}
+                            value={ukuranBaru.pd_dekat}
+                            type="text"
+                            className="form-control"
+                            placeholder="PD Dekat"
+                            name="pd_dekat"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className=" mb-0">
-                    Tanggal Periksa :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangeUkuranBaru(e)}
-                    value={ukuranBaru.tanggal_periksa}
-                    type="date"
-                    name="tanggal_periksa"
-                    id=""
-                    className="form-control"
-                  />
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Optik :
-                  </label>
-                  <select
-                    name="optik_id"
-                    id=""
-                    className="form-control"
-                    value={ukuranBaru.optik_id}
-                    onChange={(e) => handleChangeUkuranBaru(e)}
-                  >
-                    <option value="" hidden>
-                      --Nama Optik--
-                    </option>
-                    {dataOptik.map((optik, index) => (
-                      <option key={index} value={optik.id}>
-                        {optik.nama_optik}
+                  <div className="form-group mb-1">
+                    <label htmlFor="" className=" mb-0">
+                      Tanggal Periksa :
+                    </label>
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.tanggal_periksa}
+                      type="date"
+                      name="tanggal_periksa"
+                      id=""
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="form-group mb-1">
+                    <label htmlFor="" className="mb-0">
+                      Optik :
+                    </label>
+                    <select
+                      name="optik_id"
+                      id=""
+                      className="form-control"
+                      value={ukuranBaru.optik_id}
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                    >
+                      <option value="" hidden>
+                        --Nama Optik--
                       </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group mb-1">
-                  <label htmlFor="" className="mb-0">
-                    Pemeriksa :
-                  </label>
-                  <input
-                    onChange={(e) => handleChangeUkuranBaru(e)}
-                    value={ukuranBaru.pemeriksa}
-                    type="text"
-                    name="pemeriksa"
-                    id=""
-                    className="form-control"
-                    placeholder="Pemeriksa"
-                    required
-                  />
-                </div>
-                <div className="form-group mb-0">
-                  <label htmlFor="" className=" mb-0">
-                    Keterangan :
-                  </label>
-                  <textarea
-                    onChange={(e) => handleChangeUkuranBaru(e)}
-                    value={ukuranBaru.keterangan}
-                    name="keterangan"
-                    className="form-control"
-                    id=""
-                    cols="30"
-                    rows="2"
-                    placeholder="Keluhan / Keterangan lain"
-                  ></textarea>
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer justify-content-between">
-              <button
-                type="button"
-                className="btn btn-default"
-                data-dismiss="modal"
-                data-toggle="modal"
-                data-target="#modal-ukuran-lama"
-              >
-                Back
-              </button>
-              <div>
+                      {dataOptik.map((optik, index) => (
+                        <option key={index} value={optik.id}>
+                          {optik.nama_optik}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group mb-1">
+                    <label htmlFor="" className="mb-0">
+                      Pemeriksa :
+                    </label>
+                    <input
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.pemeriksa}
+                      type="text"
+                      name="pemeriksa"
+                      id=""
+                      className="form-control"
+                      placeholder="Pemeriksa"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className=" mb-0">
+                      Keterangan :
+                    </label>
+                    <textarea
+                      onChange={(e) => handleChangeUkuranBaru(e)}
+                      value={ukuranBaru.keterangan}
+                      name="keterangan"
+                      className="form-control"
+                      id=""
+                      cols="30"
+                      rows="2"
+                      placeholder="Keluhan / Keterangan lain"
+                    ></textarea>
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer justify-content-between">
                 <button
-                  type="submit"
-                  form="formUkuranKacamataBaru"
-                  className="btn btn-primary ml-1"
-                  onClick={() => handleClose()}
-                  disabled={
-                    ukuranBaru.rsph.length === 0 ||
-                    ukuranBaru.lsph.length === 0 ||
-                    ukuranBaru.pemeriksa.length === 0
-                  }
+                  type="button"
+                  className="btn btn-default"
+                  data-dismiss="modal"
+                  data-toggle="modal"
+                  data-target="#modal-ukuran-lama"
                 >
-                  Simpan
+                  Back
                 </button>
+                <div>
+                  <button
+                    type="submit"
+                    form="formUkuranKacamataBaru"
+                    className="btn btn-primary ml-1"
+                    onClick={() => handleClose()}
+                    disabled={
+                      ukuranBaru.rsph.length === 0 ||
+                      ukuranBaru.lsph.length === 0 ||
+                      ukuranBaru.pemeriksa.length === 0
+                    }
+                  >
+                    Simpan
+                  </button>
+                </div>
               </div>
             </div>
+            {/* Modal Content */}
           </div>
-          {/* Modal Content */}
+          {/* Modal Dialog */}
         </div>
-        {/* Modal Dialog */}
       </div>
-    </div>
+    </LoadingOverlay>
   );
 };
 
