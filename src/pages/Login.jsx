@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 const Login = () => {
   useDocumentTitle("Login");
   const API = import.meta.env.VITE_API_URL;
+  const [isDisabled, setIsDisabled] = useState(false);
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
   const [dataLogin, setDataLogin] = useState({
@@ -23,7 +24,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsDisabled(true);
     try {
       const response = await axios.post(API + "api/login", {
         email: dataLogin.email,
@@ -39,6 +40,7 @@ const Login = () => {
         }, 500);
       } else {
         setMsg(response.data.message);
+        setIsDisabled(false);
       }
     } catch (error) {
       console.log(error);
@@ -114,7 +116,9 @@ const Login = () => {
               <div className="row">
                 <button
                   type="submit"
+                  disabled={isDisabled}
                   className="btn btn-primary btn-block mx-2"
+                  style={isDisabled ? styles.buttonDisabled : styles.button}
                 >
                   Sign In
                 </button>
@@ -126,6 +130,16 @@ const Login = () => {
       </div>
     </div>
   );
+};
+
+// Styles
+const styles = {
+  button: {
+    cursor: "pointer",
+  },
+  buttonDisabled: {
+    cursor: "not-allowed",
+  },
 };
 
 export default Login;
