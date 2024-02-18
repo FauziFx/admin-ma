@@ -5,10 +5,12 @@ import axios from "axios";
 import moment from "moment-timezone";
 import { useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
+import LoadingOverlay from "react-loading-overlay-ts";
 
 const Garansi = () => {
   useDocumentTitle("Data Garansi");
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   const URL = import.meta.env.VITE_API_URL;
   const closeModal = useRef(null);
   const [data, setData] = useState([]);
@@ -228,14 +230,18 @@ const Garansi = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     getData();
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
+    setIsLoading(true);
     const result = data.filter((item) => {
       return item.nama.toLowerCase().includes(search.toLocaleLowerCase());
     });
     setFilter(result);
+    setIsLoading(false);
   }, [data, search]);
 
   return (
@@ -258,13 +264,19 @@ const Garansi = () => {
                   />
                 </div>
                 <div className="card-body">
-                  <DataTable
-                    columns={columns}
-                    data={filter}
-                    pagination
-                    highlightOnHover
-                    customStyles={tableCustomStyles}
-                  />
+                  <LoadingOverlay
+                    active={isLoading}
+                    spinner
+                    text="Loading your content..."
+                  >
+                    <DataTable
+                      columns={columns}
+                      data={filter}
+                      pagination
+                      highlightOnHover
+                      customStyles={tableCustomStyles}
+                    />
+                  </LoadingOverlay>
                 </div>
               </div>
             </div>
