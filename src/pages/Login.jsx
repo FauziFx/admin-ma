@@ -43,6 +43,7 @@ const Login = () => {
         setIsDisabled(false);
       }
     } catch (error) {
+      setIsDisabled(false);
       console.log(error);
     }
   };
