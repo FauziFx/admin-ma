@@ -63,7 +63,7 @@ const Navbar = () => {
               href="#"
               onClick={() => {
                 localStorage.clear();
-                window.location.replace("/login");
+                window.location.replace("/");
               }}
               className="dropdown-item dropdown-footer"
             >
