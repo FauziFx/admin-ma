@@ -28,7 +28,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const userToken = localStorage.getItem("user-token");
+    const userToken = localStorage.getItem("user-ma-token");
     if (userToken) {
       const decode = jwtDecode(userToken);
       if (decode.user.role == "admin") {

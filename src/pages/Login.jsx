@@ -27,13 +27,13 @@ const Login = () => {
     setIsDisabled(true);
     try {
       const response = await axios.post(API + "api/login", {
-        email: dataLogin.email,
+        username: dataLogin.email,
         password: dataLogin.password,
       });
-      if (response.data.succes) {
+      if (response.data.success) {
         const token = response.data.token;
         localStorage.clear();
-        localStorage.setItem("user-token", token);
+        localStorage.setItem("user-ma-token", token);
 
         setTimeout(() => {
           window.location.replace("/");
@@ -49,7 +49,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    const userToken = localStorage.getItem("user-token");
+    const userToken = localStorage.getItem("user-ma-token");
     if (userToken) {
       return navigate("/");
     }

@@ -16,15 +16,15 @@ const SideNav = ({ isAdmin }) => {
     } else {
       setDataMenuFilter(dataMenu);
     }
-    const userToken = localStorage.getItem("user-token");
+    const userToken = localStorage.getItem("user-ma-token");
     if (!userToken) {
       return navigate("/login");
     } else {
       const decode = jwtDecode(userToken);
       setUser({
         id: decode.user.id,
-        name: decode.user.name,
-        email: decode.user.email,
+        name: decode.user.nama,
+        email: decode.user.username,
         role: decode.user.role,
       });
     }

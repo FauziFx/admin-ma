@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
   const [isLoggedin, setIsLoggedIn] = useState(false);
   useEffect(() => {
-    const token = localStorage.getItem("user-token");
+    const token = localStorage.getItem("user-ma-token");
     if (!token) {
       setIsLoggedIn(false);
       return navigate("/login");
