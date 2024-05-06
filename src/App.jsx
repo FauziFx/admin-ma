@@ -23,6 +23,7 @@ import Error404 from "./pages/Error404";
 import DataOptik from "./pages/DataOptik";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import CekStokLensa from "./pages/CekStokLensa";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -66,10 +67,10 @@ function App() {
             }
           />
           <Route
-            path="data-lensa"
+            path="cek-stok-lensa"
             element={
               <ProtectedRoute>
-                <DataLensa />
+                <CekStokLensa />
               </ProtectedRoute>
             }
           />
@@ -121,7 +122,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {isAdmin && (
+          {/* {isAdmin && (
             <Route
               path="daftar-akun"
               element={
@@ -130,7 +131,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          )}
+          )} */}
 
           <Route
             path="pengaturan-akun"
