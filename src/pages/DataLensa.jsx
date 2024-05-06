@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import LoadingOverlay from "react-loading-overlay-ts";
 
 const DataLensa = () => {
-  useDocumentTitle("Data Lensa");
+  useDocumentTitle("Cek Stok Lensa 2");
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
@@ -17,12 +17,14 @@ const DataLensa = () => {
   const columns = [
     {
       name: "Nama Lensa",
-      selector: (row) => row.product_name,
+      selector: (row) => row.nama,
     },
   ];
 
   const handleRowClick = (row) => {
-    navigate(`/data-lensa/${row.id}`);
+    navigate(`/stok-lensa/${row.nama.toLocaleLowerCase()}`, {
+      state: { nama: row.nama },
+    });
   };
 
   useEffect(() => {
@@ -30,9 +32,9 @@ const DataLensa = () => {
     const getData = async () => {
       try {
         const URL = import.meta.env.VITE_API_URL;
-        const response = await axios.get(URL + "api/products", {
+        const response = await axios.get(URL + "api/lensa", {
           headers: {
-            Authorization: localStorage.getItem("user-token"),
+            Authorization: localStorage.getItem("user-ma-token"),
           },
         });
         if (response.data.success) {
@@ -54,9 +56,7 @@ const DataLensa = () => {
   useEffect(() => {
     setIsLoading(true);
     const result = data.filter((item) => {
-      return item.product_name
-        .toLowerCase()
-        .includes(search.toLocaleLowerCase());
+      return item.nama.toLowerCase().includes(search.toLocaleLowerCase());
     });
     setFilter(result);
     setIsLoading(false);
@@ -64,7 +64,7 @@ const DataLensa = () => {
 
   return (
     <div className="content-wrapper">
-      <Breadcrumb title="Data Lensa" />
+      <Breadcrumb title="Cek Stok Lensa 2" />
       {/* Main Content */}
       <div className="content">
         <div className="container-fluid">

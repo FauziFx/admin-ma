@@ -41,14 +41,22 @@ const SideNav = ({ isAdmin }) => {
     },
     {
       id: 2,
-      title: "Cek Stok Lensa",
-      url: "cek-stok-lensa",
+      title: "Cek Stok Lensa 1",
+      url: "cek-stok-lensa-1",
       icon: "fa-database",
       clicked: false,
       role: "user",
     },
     {
       id: 3,
+      title: "Cek Stok Lensa 2",
+      url: "cek-stok-lensa-2",
+      icon: "fa-database",
+      clicked: false,
+      role: "user",
+    },
+    {
+      id: 4,
       title: "Rekam Medis",
       url: "",
       icon: "fa-user-md",
@@ -60,7 +68,7 @@ const SideNav = ({ isAdmin }) => {
       role: "user",
     },
     {
-      id: 4,
+      id: 5,
       title: "Garansi",
       url: "",
       icon: "fa-certificate",
@@ -72,7 +80,7 @@ const SideNav = ({ isAdmin }) => {
       role: "user",
     },
     {
-      id: 5,
+      id: 6,
       title: "Data Optik/Armada",
       url: "data-optik",
       icon: "fa-building",
@@ -88,7 +96,7 @@ const SideNav = ({ isAdmin }) => {
     //   role: "admin",
     // },
     {
-      id: 6,
+      id: 7,
       title: "Pengaturan Akun",
       url: "pengaturan-akun",
       icon: "fa-cog",

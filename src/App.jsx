@@ -67,7 +67,7 @@ function App() {
             }
           />
           <Route
-            path="cek-stok-lensa"
+            path="cek-stok-lensa-1"
             element={
               <ProtectedRoute>
                 <CekStokLensa />
@@ -75,7 +75,15 @@ function App() {
             }
           />
           <Route
-            path="data-lensa/:id"
+            path="cek-stok-lensa-2"
+            element={
+              <ProtectedRoute>
+                <DataLensa />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="stok-lensa/:id"
             element={
               <ProtectedRoute>
                 <StokLensa isAdmin={isAdmin} />

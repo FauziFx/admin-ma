@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import LoadingOverlay from "react-loading-overlay-ts";
 
 const CekStokLensa = () => {
-  useDocumentTitle("Data Lensa");
+  useDocumentTitle("Cek Stok Lensa 1");
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");

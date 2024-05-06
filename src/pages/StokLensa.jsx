@@ -3,13 +3,14 @@ import useDocumentTitle from "../utils/useDocumentTitle";
 import Breadcrumb from "../components/Breadcrumb";
 import DataTable from "react-data-table-component";
 import axios from "axios";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import LoadingOverlay from "react-loading-overlay-ts";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/src/sweetalert2.scss";
 
 const StokLensa = ({ isAdmin }) => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const URL = import.meta.env.VITE_API_URL;
   const { id } = useParams();
   const [data, setData] = useState([]);
@@ -17,11 +18,7 @@ const StokLensa = ({ isAdmin }) => {
   const [filter, setFilter] = useState([]);
   const [lensa, setLensa] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  useDocumentTitle(
-    "Stok Lensa " +
-      lensa.charAt(0).toUpperCase() +
-      lensa.slice(1).toLocaleLowerCase()
-  );
+  useDocumentTitle("Stok Lensa " + state.nama);
 
   const [powerEdit, setPowerEdit] = useState({
     id: "",
@@ -45,21 +42,21 @@ const StokLensa = ({ isAdmin }) => {
   const columns = [
     {
       name: "Power",
-      selector: (row) => row.power_name,
+      selector: (row) => row.nama_varian,
     },
     {
       name: "Stok",
-      selector: (row) => row.stock,
+      selector: (row) => row.stok,
       conditionalCellStyles: [
         {
-          when: (row) => row.stock <= 0,
+          when: (row) => row.stok <= 0,
           style: {
             backgroundColor: "#dc3545",
             color: "white",
           },
         },
         {
-          when: (row) => row.stock === 1,
+          when: (row) => row.stok === 1,
           style: {
             backgroundColor: "#ffc107",
             color: "white",
@@ -67,41 +64,43 @@ const StokLensa = ({ isAdmin }) => {
         },
       ],
     },
-    {
-      name: "Action",
-      selector: (row) => (
-        <button
-          className="btn btn-xs btn-success"
-          data-toggle="modal"
-          data-target="#modal-edit"
-          onClick={() =>
-            setPowerEdit({
-              id: row.id,
-              power_name: row.power_name,
-              inStock: row.stock,
-              stock: row.stock,
-            })
-          }
-        >
-          Edit
-        </button>
-      ),
-      width: "auto",
-      omit: !isAdmin,
-    },
+    // {
+    //   name: "Action",
+    //   selector: (row) => (
+    //     <button
+    //       className="btn btn-xs btn-success"
+    //       data-toggle="modal"
+    //       data-target="#modal-edit"
+    //       onClick={() =>
+    //         setPowerEdit({
+    //           id: row.id,
+    //           power_name: row.power_name,
+    //           inStock: row.stock,
+    //           stock: row.stock,
+    //         })
+    //       }
+    //     >
+    //       Edit
+    //     </button>
+    //   ),
+    //   width: "auto",
+    //   omit: !isAdmin,
+    // },
   ];
 
   const getData = async () => {
     try {
-      const response = await axios.get(URL + "api/product/" + id, {
+      const response = await axios.get(URL + "api/stok", {
+        params: {
+          nama_lensa: state.nama,
+        },
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
       if (response.data.success) {
         setData(response.data.data);
         setFilter(response.data.data);
-        setLensa(response.data.product_name);
       } else {
         localStorage.clear();
         return navigate("/login");
@@ -138,6 +137,7 @@ const StokLensa = ({ isAdmin }) => {
   };
 
   useEffect(() => {
+    setLensa(state.nama);
     setIsLoading(true);
     getData();
     setIsLoading(false);
@@ -146,7 +146,9 @@ const StokLensa = ({ isAdmin }) => {
   useEffect(() => {
     setIsLoading(true);
     const result = data.filter((item) => {
-      return item.power_name.toLowerCase().includes(search.toLocaleLowerCase());
+      return item.nama_varian
+        .toLowerCase()
+        .includes(search.toLocaleLowerCase());
     });
     setFilter(result);
     setIsLoading(false);
@@ -163,7 +165,7 @@ const StokLensa = ({ isAdmin }) => {
               <div className="card">
                 <div className="card-header">
                   <Link
-                    to="/data-lensa"
+                    to="/cek-stok-lensa-2"
                     className="btn btn-primary btn-sm my-1"
                   >
                     <i className="fas fa-barcode"></i> Data Lensa
