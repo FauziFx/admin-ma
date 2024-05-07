@@ -119,7 +119,7 @@ function App() {
             path="klaim-garansi"
             element={
               <ProtectedRoute>
-                <KlaimGaransi />
+                <KlaimGaransi isAdmin={isAdmin} />
               </ProtectedRoute>
             }
           />
