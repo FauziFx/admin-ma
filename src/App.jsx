@@ -24,6 +24,7 @@ import DataOptik from "./pages/DataOptik";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import CekStokLensa from "./pages/CekStokLensa";
+import DataGaransi from "./pages/DataGaransi";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -110,7 +111,7 @@ function App() {
             path="garansi"
             element={
               <ProtectedRoute>
-                <Garansi />
+                <DataGaransi />
               </ProtectedRoute>
             }
           />
