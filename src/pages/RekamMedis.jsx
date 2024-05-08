@@ -209,7 +209,7 @@ const RekamMedis = () => {
     try {
       const response = await axios.delete(URL + "api/rekam/" + id, {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
       if (response.data.success) {
@@ -294,7 +294,7 @@ const RekamMedis = () => {
         },
         {
           headers: {
-            Authorization: localStorage.getItem("user-token"),
+            Authorization: localStorage.getItem("user-ma-token"),
           },
         }
       );
@@ -313,7 +313,7 @@ const RekamMedis = () => {
     try {
       const response = await axios.get(URL + "api/rekam", {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
 
@@ -333,7 +333,7 @@ const RekamMedis = () => {
     try {
       const response = await axios.get(URL + "api/pasien", {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
 

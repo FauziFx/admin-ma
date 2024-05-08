@@ -240,7 +240,7 @@ const Pasien = () => {
     try {
       const response = await axios.get(URL + "api/rekam/" + row.id, {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
       if (response.data.success) {
@@ -289,7 +289,7 @@ const Pasien = () => {
     try {
       const response = await axios.put(URL + "api/pasien/" + pasienId, data, {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
 
@@ -312,6 +312,7 @@ const Pasien = () => {
     setIsLoadingSubmit(true);
     await submitPasien(e);
     await getData();
+    setUsia("");
     setIsLoadingSubmit(false);
     Toast.fire({
       icon: "success",
@@ -338,7 +339,7 @@ const Pasien = () => {
     try {
       const response = await axios.post(URL + "api/pasien", data, {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
       if (response.data.success === true) {
@@ -378,7 +379,7 @@ const Pasien = () => {
         },
         {
           headers: {
-            Authorization: localStorage.getItem("user-token"),
+            Authorization: localStorage.getItem("user-ma-token"),
           },
         }
       );
@@ -418,7 +419,7 @@ const Pasien = () => {
         },
         {
           headers: {
-            Authorization: localStorage.getItem("user-token"),
+            Authorization: localStorage.getItem("user-ma-token"),
           },
         }
       );
@@ -457,7 +458,7 @@ const Pasien = () => {
     try {
       const response = await axios.get(URL + "api/pasien", {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
       if (response.data.success) {
@@ -476,7 +477,7 @@ const Pasien = () => {
     try {
       const response = await axios.delete(URL + "api/pasien/" + id, {
         headers: {
-          Authorization: localStorage.getItem("user-token"),
+          Authorization: localStorage.getItem("user-ma-token"),
         },
       });
       if (response.data.success) {
@@ -1082,7 +1083,7 @@ const Pasien = () => {
                   </div>
                   <div className="form-group mb-0">
                     <label htmlFor="" className="mb-0">
-                      No Hp :
+                      No Hp : <small>Isi &quot;0&quot; jika tidak ada</small>
                     </label>
                     <input
                       onChange={(e) => handleChangePasien(e)}
