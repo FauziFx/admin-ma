@@ -38,62 +38,41 @@ const PengaturanAkun = () => {
     e.preventDefault();
 
     try {
-      let response;
-      if (user.oldPassword == "") {
-        response = await axios.put(
-          URL + "api/users/" + user.id,
-          {
-            name: user.name,
-            email: user.email,
-            password: "",
-            role: user.role,
+      const id = user.id;
+      const response = await axios.put(
+        URL + "api/change_password/" + id,
+        {
+          nama: user.name,
+          username: user.email,
+          password_lama: user.oldPassword,
+          password_baru: user.newPassword,
+          role: user.role,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("user-ma-token"),
           },
-          {
-            headers: {
-              Authorization: localStorage.getItem("user-token"),
-            },
-          }
-        );
-      } else {
-        if (user.newPassword == "") {
-          return setError(!error);
-        } else {
-          response = await axios.put(
-            URL + "api/change_password/" + user.id,
-            {
-              name: user.name,
-              email: user.email,
-              role: user.role,
-              oldPassword: user.oldPassword,
-              newPassword: user.newPassword,
-            },
-            {
-              headers: {
-                Authorization: localStorage.getItem("user-token"),
-              },
-            }
-          );
         }
-      }
-
-      if (response.data.success === true) {
-        Toast.fire({
-          icon: "success",
-          title: response.data.message,
-        });
-        backBtn.current.click();
-        setTimeout(() => {
-          setUser((prevState) => ({
-            ...prevState,
-            oldPassword: "",
-            newPassword: "",
-          }));
-        }, 1000);
+      );
+      if (response.data.message == "invalid token") {
+        localStorage.clear();
+        return navigate("/login");
       } else {
-        Toast.fire({
-          icon: "error",
-          title: response.data.message,
-        });
+        if (response.data.match === true) {
+          setUser((prev) => {
+            return {
+              ...prev,
+              oldPassword: "",
+              newPassword: "",
+            };
+          });
+          Toast.fire({
+            icon: "success",
+            title: "Data berhasil disimpan!",
+          });
+        } else {
+          setError(true);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -101,15 +80,15 @@ const PengaturanAkun = () => {
   };
 
   useEffect(() => {
-    const userToken = localStorage.getItem("user-token");
+    const userToken = localStorage.getItem("user-ma-token");
     if (!userToken) {
       return navigate("/login");
     } else {
       const decode = jwtDecode(userToken);
       setUser({
         id: decode.user.id,
-        name: decode.user.name,
-        email: decode.user.email,
+        name: decode.user.nama,
+        email: decode.user.username,
         role: decode.user.role,
         oldPassword: "",
         newPassword: "",
@@ -125,7 +104,7 @@ const PengaturanAkun = () => {
       <div className="content">
         <div className="container-fluid">
           <div className="row">
-            <div className="col-lg-5">
+            <div className="col-lg-6">
               <div className="card">
                 <div className="card-header">
                   <div className="card-title">
@@ -156,7 +135,7 @@ const PengaturanAkun = () => {
                   )}
                   {edit && (
                     <>
-                      <form action="" onSubmit={submitEdit}>
+                      <form action="" onSubmit={submitEdit} autoComplete="off">
                         <div className="form-group">
                           <label htmlFor="">Nama</label>
                           <input
@@ -166,6 +145,7 @@ const PengaturanAkun = () => {
                             name="name"
                             className="form-control"
                             placeholder="Nama"
+                            autoComplete="off"
                             required
                           />
                         </div>
@@ -177,30 +157,38 @@ const PengaturanAkun = () => {
                             onChange={(e) => handleChange(e)}
                             type="email"
                             name="email"
+                            disabled
                             className="form-control"
                             placeholder="email@mail.com"
+                            autoComplete="off"
                             required
                           />
                         </div>
 
                         <div className="form-group">
-                          <label htmlFor="">
-                            Password Lama <i>(Optional)</i>
-                          </label>
+                          <label htmlFor="">Password Lama</label>
+                          &nbsp;
+                          {error && (
+                            <small className="text-danger">
+                              Password lama salah!!
+                            </small>
+                          )}
                           <input
                             value={user.oldPassword}
                             onChange={(e) => handleChange(e)}
                             type="password"
                             name="oldPassword"
-                            className="form-control"
+                            className={
+                              error ? "form-control is-invalid" : "form-control"
+                            }
                             placeholder="Password"
+                            autoComplete="off"
+                            required
                           />
                         </div>
 
                         <div className="form-group">
-                          <label htmlFor="">
-                            Password Baru <i>(Optional)</i>
-                          </label>
+                          <label htmlFor="">Password Baru</label>
                           <input
                             value={user.newPassword}
                             onChange={(e) => handleChange(e)}
@@ -208,10 +196,9 @@ const PengaturanAkun = () => {
                             name="newPassword"
                             className="form-control"
                             placeholder="Password"
+                            autoComplete="off"
+                            required
                           />
-                          {error && (
-                            <i className="text-danger">* Tidak boleh kosong</i>
-                          )}
                         </div>
 
                         <button
@@ -219,6 +206,13 @@ const PengaturanAkun = () => {
                           className="btn btn-default"
                           onClick={() => {
                             setEdit(!edit);
+                            setUser((prev) => {
+                              return {
+                                ...prev,
+                                oldPassword: "",
+                                newPassword: "",
+                              };
+                            });
                             setError(false);
                           }}
                           ref={backBtn}
