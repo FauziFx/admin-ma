@@ -222,6 +222,15 @@ const Pasien = () => {
                 nohp: row.nohp,
                 riwayat: row.riwayat,
               });
+              const arr = row.riwayat.split(",");
+              const result = checkItem.map((item) => {
+                const found = arr.find((s) => s === item.name);
+                if (found) {
+                  return { ...item, check: true };
+                }
+                return { ...item };
+              });
+              setCheckItem(result);
               setIsLoadingEdit(false);
             }}
           >
@@ -633,7 +642,7 @@ const Pasien = () => {
                 <h4 className="modal-title">Edit Pasien</h4>
               </div>
               <form onSubmit={submitEditPasien}>
-                <div className="modal-body py-0">
+                <div className="modal-body modal-body-scroll py-0">
                   <LoadingOverlay
                     active={isLoadingEdit}
                     spinner
@@ -745,21 +754,43 @@ const Pasien = () => {
                       <label htmlFor="" className="mb-0">
                         Riwayat Penyakit :
                       </label>
-                      <select
-                        onChange={(e) => handleChangePasien(e)}
-                        value={pasien.riwayat}
-                        name="riwayat"
-                        id=""
-                        className="form-control"
-                        required
-                      >
-                        <option value="-">Tidak ada</option>
-                        <option value="Hipertensi">Hipertensi</option>
-                        <option value="Gula Darah">Gula Darah</option>
-                        <option value="Kecelakaan">Kecelakaan</option>
-                        <option value="Operasi Mata">Operasi Mata</option>
-                        <option value="Katarak">Katarak </option>
-                      </select>
+                      <div className="row px-3">
+                        {checkItem.map((item, i) => {
+                          return (
+                            <div className="form-check my-2 col-6" key={i}>
+                              <input
+                                className="form-check-input large-checkbox"
+                                type="checkbox"
+                                value={item.name}
+                                id={"defaultCheck" + item.id}
+                                onChange={(e) => {
+                                  const curr = checkItem;
+                                  curr[item.id].check = !curr[item.id].check;
+                                  setCheckItem([...curr]);
+                                  const arr = curr
+                                    .filter(function (item) {
+                                      return item.check == true;
+                                    })
+                                    .map((items) => {
+                                      return items.name;
+                                    });
+                                  setPasien((prevState) => ({
+                                    ...prevState,
+                                    riwayat: arr.toString(),
+                                  }));
+                                }}
+                                checked={item.check}
+                              />
+                              <label
+                                className="form-check-label ml-2"
+                                htmlFor={"defaultCheck" + item.id}
+                              >
+                                {item.name}
+                              </label>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </LoadingOverlay>
                 </div>
