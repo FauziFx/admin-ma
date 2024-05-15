@@ -17,8 +17,17 @@
   overflow-y: initial !important;
 }
 .modal-body-scroll {
-  height: 60vh;
+  height: 75vh;
   overflow-y: auto;
+}
+
+.btn-outline-dark:hover {
+  background: #fff;
+  color: #343a40;
+}
+
+input.large-checkbox {
+  transform: scale(2.5);
 }
 
 .table-small {

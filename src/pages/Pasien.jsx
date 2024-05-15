@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Breadcrumb from "../components/Breadcrumb";
 import useDocumentTitle from "../utils/useDocumentTitle";
 import moment from "moment-timezone";
+import "moment/dist/locale/id";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -11,6 +12,16 @@ import "sweetalert2/src/sweetalert2.scss";
 
 const Pasien = () => {
   useDocumentTitle("Data Pasien");
+  const list = [
+    { name: "Hipertensi", check: false },
+    { name: "Gula Darah", check: false },
+    { name: "Kecelakaan", check: false },
+    { name: "Operasi Mata", check: false },
+    { name: "Katarak", check: false },
+  ];
+  const [checkItem, setCheckItem] = useState([
+    ...list.map((x, id) => ({ id, ...x })),
+  ]);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
@@ -114,6 +125,13 @@ const Pasien = () => {
     closeModalPasien.current.click();
     closeModalAll.current.click();
     closeModalEdit.current.click();
+    setCheckItem((prev) => [
+      ...prev.map(({ check, ...rest }) => ({
+        ...rest,
+        check: false,
+      })),
+    ]);
+    setUsia("");
 
     setTimeout(() => {
       setPasien({
@@ -309,6 +327,12 @@ const Pasien = () => {
 
   const simpanPasien = async (e) => {
     e.preventDefault();
+    setCheckItem((prev) => [
+      ...prev.map(({ check, ...rest }) => ({
+        ...rest,
+        check: false,
+      })),
+    ]);
     setIsLoadingSubmit(true);
     await submitPasien(e);
     await getData();
@@ -322,10 +346,11 @@ const Pasien = () => {
 
   const submitPasien = async (e) => {
     e.preventDefault();
+    moment.locale("id");
     const ttl =
       pasien.tempat +
       ", " +
-      moment(pasien.tanggal_lahir).locale("id").format("DD MMMM YYYY");
+      moment(pasien.tanggal_lahir).format("DD MMMM YYYY");
     const data = {
       nama: pasien.nama,
       alamat: pasien.alamat,
@@ -807,7 +832,7 @@ const Pasien = () => {
                         <td>{detail.alamat}</td>
                       </tr>
                       <tr>
-                        <td>TTL</td>
+                        <td>Usia</td>
                         <td>:</td>
                         <td>{detail.usia} Tahun</td>
                       </tr>
@@ -1095,25 +1120,47 @@ const Pasien = () => {
                       required
                     />
                   </div>
-                  <div className="form-group mb-0">
+                  <div className="form-group mb-2">
                     <label htmlFor="" className="mb-0">
                       Riwayat Penyakit :
                     </label>
-                    <select
-                      onChange={(e) => handleChangePasien(e)}
-                      value={pasien.riwayat}
-                      name="riwayat"
-                      id=""
-                      className="form-control"
-                      required
-                    >
-                      <option value="-">Tidak ada</option>
-                      <option value="Hipertensi">Hipertensi</option>
-                      <option value="Gula Darah">Gula Darah</option>
-                      <option value="Kecelakaan">Kecelakaan</option>
-                      <option value="Operasi Mata">Operasi Mata</option>
-                      <option value="Katarak">Katarak </option>
-                    </select>
+                    <div className="row px-3">
+                      {checkItem.map((item, i) => {
+                        return (
+                          <div className="form-check my-2 col-6" key={i}>
+                            <input
+                              className="form-check-input large-checkbox"
+                              type="checkbox"
+                              value={item.name}
+                              id={"defaultCheck" + item.id}
+                              onChange={(e) => {
+                                const curr = checkItem;
+                                curr[item.id].check = !curr[item.id].check;
+                                setCheckItem([...curr]);
+                                const arr = curr
+                                  .filter(function (item) {
+                                    return item.check == true;
+                                  })
+                                  .map((items) => {
+                                    return items.name;
+                                  });
+                                setPasien((prevState) => ({
+                                  ...prevState,
+                                  riwayat: arr.toString(),
+                                }));
+                              }}
+                              checked={item.check}
+                            />
+                            <label
+                              className="form-check-label ml-2"
+                              htmlFor={"defaultCheck" + item.id}
+                            >
+                              {item.name}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
                 <div className="modal-footer justify-content-between">
