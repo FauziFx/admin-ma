@@ -177,14 +177,19 @@ const Pasien = () => {
   };
 
   const columns = [
-    {
-      name: "Tanggal",
-      selector: (row) => moment.utc(row.tanggal).format("DD/MM/YYYY"),
-      sortable: true,
-    },
+    // {
+    //   name: "Tanggal",
+    //   selector: (row) => moment.utc(row.tanggal).format("DD/MM/YYYY"),
+    //   sortable: true,
+    // },
     {
       name: "Nama",
       selector: (row) => row.nama.toUpperCase(),
+      sortable: true,
+    },
+    {
+      name: "TTL",
+      selector: (row) => row.ttl,
       sortable: true,
     },
     {
@@ -890,7 +895,13 @@ const Pasien = () => {
                       <tr>
                         <td>Riwayat</td>
                         <td>:</td>
-                        <td>{detail.riwayat}</td>
+                        <td>
+                          {detail.riwayat.split(",").map((item, index) => (
+                            <ul key={index} className="pl-3 my-0">
+                              <li>{item}</li>
+                            </ul>
+                          ))}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
