@@ -953,8 +953,14 @@ const Pasien = () => {
                                 aria-expanded="true"
                                 aria-controls={"collapse-" + data.id}
                               >
-                                # {moment(data.tanggal).format("DD/MM/YYYY")}
-                                {data.ukuran_lama === "y" ? " Ukuran Lama" : ""}
+                                # {moment(data.tanggal).format("DD MMMM YYYY")}
+                                {data.ukuran_lama === "y" ? (
+                                  <small className="text-dark">
+                                    &nbsp;(Ukuran Lama)
+                                  </small>
+                                ) : (
+                                  ""
+                                )}
                               </button>
                             </h2>
                           </div>
