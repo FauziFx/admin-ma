@@ -26,8 +26,9 @@
   color: #343a40;
 }
 
-input.large-checkbox {
-  transform: scale(2.5);
+.custom-control-label::before,
+.custom-control-label::after {
+  transform: scale(1.5);
 }
 
 .table-small {

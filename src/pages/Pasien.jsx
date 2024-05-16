@@ -714,18 +714,42 @@ const Pasien = () => {
                       <label htmlFor="" className="mb-0">
                         Jenis Kelamin :
                       </label>
-                      <select
-                        onChange={(e) => handleChangePasien(e)}
-                        value={pasien.jenis_kelamin}
-                        name="jenis_kelamin"
-                        id=""
-                        className="form-control"
-                        required
-                      >
-                        <option value="">-Jenis Kelamin-</option>
-                        <option value="Laki-laki">Laki-laki</option>
-                        <option value="Perempuan">Perempuan</option>
-                      </select>
+                      <div className="px-3">
+                        <div className="custom-control custom-radio custom-control-inline w-50">
+                          <input
+                            type="radio"
+                            id="customRadioInline1"
+                            name="jenis_kelamin"
+                            className="custom-control-input"
+                            value="Laki-laki"
+                            checked={pasien.jenis_kelamin === "Laki-laki"}
+                            onChange={(e) => handleChangePasien(e)}
+                          />
+                          <label
+                            className="custom-control-label"
+                            htmlFor="customRadioInline1"
+                          >
+                            Laki-laki
+                          </label>
+                        </div>
+                        <div className="custom-control custom-radio custom-control-inline">
+                          <input
+                            type="radio"
+                            id="customRadioInline2"
+                            name="jenis_kelamin"
+                            className="custom-control-input"
+                            value="Perempuan"
+                            checked={pasien.jenis_kelamin === "Perempuan"}
+                            onChange={(e) => handleChangePasien(e)}
+                          />
+                          <label
+                            className="custom-control-label"
+                            htmlFor="customRadioInline2"
+                          >
+                            Perempuan
+                          </label>
+                        </div>
+                      </div>
                     </div>
                     <div className="form-group mb-1">
                       <label htmlFor="" className="mb-0">
@@ -762,9 +786,12 @@ const Pasien = () => {
                       <div className="row px-3">
                         {checkItem.map((item, i) => {
                           return (
-                            <div className="form-check my-2 col-6" key={i}>
+                            <div
+                              className="custom-control custom-checkbox my-2 col-6"
+                              key={i}
+                            >
                               <input
-                                className="form-check-input large-checkbox"
+                                className="custom-control-input"
                                 type="checkbox"
                                 value={item.name}
                                 id={"defaultCheck" + item.id}
@@ -787,7 +814,7 @@ const Pasien = () => {
                                 checked={item.check}
                               />
                               <label
-                                className="form-check-label ml-2"
+                                className="custom-control-label ml-2"
                                 htmlFor={"defaultCheck" + item.id}
                               >
                                 {item.name}
@@ -1117,22 +1144,46 @@ const Pasien = () => {
                       required
                     />
                   </div>
-                  <div className="form-group mb-0">
-                    <label htmlFor="" className="mb-0">
+                  <div className="form-group mb-0 pb-2">
+                    <label htmlFor="" className="mb-2">
                       Jenis Kelamin :
                     </label>
-                    <select
-                      onChange={(e) => handleChangePasien(e)}
-                      value={pasien.jenis_kelamin}
-                      name="jenis_kelamin"
-                      id=""
-                      className="form-control"
-                      required
-                    >
-                      <option value="">-Jenis Kelamin-</option>
-                      <option value="Laki-laki">Laki-laki</option>
-                      <option value="Perempuan">Perempuan</option>
-                    </select>
+                    <div className="px-3">
+                      <div className="custom-control custom-radio custom-control-inline w-50">
+                        <input
+                          type="radio"
+                          id="customRadioInline1"
+                          name="jenis_kelamin"
+                          className="custom-control-input"
+                          value="Laki-laki"
+                          checked={pasien.jenis_kelamin === "Laki-laki"}
+                          onChange={(e) => handleChangePasien(e)}
+                        />
+                        <label
+                          className="custom-control-label"
+                          htmlFor="customRadioInline1"
+                        >
+                          Laki-laki
+                        </label>
+                      </div>
+                      <div className="custom-control custom-radio custom-control-inline">
+                        <input
+                          type="radio"
+                          id="customRadioInline2"
+                          name="jenis_kelamin"
+                          className="custom-control-input"
+                          value="Perempuan"
+                          checked={pasien.jenis_kelamin === "Perempuan"}
+                          onChange={(e) => handleChangePasien(e)}
+                        />
+                        <label
+                          className="custom-control-label"
+                          htmlFor="customRadioInline2"
+                        >
+                          Perempuan
+                        </label>
+                      </div>
+                    </div>
                   </div>
                   <div className="form-group mb-0">
                     <label htmlFor="" className="mb-0">
@@ -1163,15 +1214,18 @@ const Pasien = () => {
                     />
                   </div>
                   <div className="form-group mb-2">
-                    <label htmlFor="" className="mb-0">
+                    <label htmlFor="" className="mb-0 mt-2">
                       Riwayat Penyakit :
                     </label>
                     <div className="row px-3">
                       {checkItem.map((item, i) => {
                         return (
-                          <div className="form-check my-2 col-6" key={i}>
+                          <div
+                            className="custom-control custom-checkbox my-2 col-6"
+                            key={i}
+                          >
                             <input
-                              className="form-check-input large-checkbox"
+                              className="custom-control-input"
                               type="checkbox"
                               value={item.name}
                               id={"defaultCheck" + item.id}
@@ -1194,7 +1248,7 @@ const Pasien = () => {
                               checked={item.check}
                             />
                             <label
-                              className="form-check-label ml-2"
+                              className="custom-control-label ml-2"
                               htmlFor={"defaultCheck" + item.id}
                             >
                               {item.name}
