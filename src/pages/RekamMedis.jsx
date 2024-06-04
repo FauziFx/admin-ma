@@ -88,7 +88,11 @@ const RekamMedis = () => {
 
   const loadImage = (e) => {
     const files = e.target.files[0];
-    if (files.type == "image/png" || files.type == "image/jpeg") {
+    if (
+      files.type == "image/png" ||
+      files.type == "image/jpeg" ||
+      files.type == "image/jpg"
+    ) {
       if (files.size > 3145728) {
         Toast.fire({
           icon: "error",
