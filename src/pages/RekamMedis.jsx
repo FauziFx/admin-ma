@@ -3,6 +3,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import useDocumentTitle from "../utils/useDocumentTitle";
 import DataTable from "react-data-table-component";
 import moment from "moment-timezone";
+import "moment/dist/locale/id";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
@@ -11,17 +12,21 @@ import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/src/sweetalert2.scss";
 
 const RekamMedis = () => {
-  useDocumentTitle("Data Rekam Medis");
-  const URL = import.meta.env.VITE_API_URL;
+  useDocumentTitle("Data Kunjungan Pasien");
+  const URL_API = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const closeModal = useRef(null);
+  const uploadFile = useRef(null);
+  const [file, setFile] = useState("");
+  const [preview, setPreview] = useState("");
+  const [openPreview, setOpenPreview] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
   // Rekam medis
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
-  const [dataHapus, setDataHapus] = useState({ id: 0, nama: "" });
+  const [dataHapus, setDataHapus] = useState({ id: 0, nama: "", image: "" });
   const [dataOptik, setDataOptik] = useState([]);
   // Data Pasien
   const [dataPasien, setDataPasien] = useState([]);
@@ -79,11 +84,32 @@ const RekamMedis = () => {
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.onmouseenter = Swal.stopTimer;
-      toast.onmouseleave = Swal.resumeTimer;
-    },
   });
+
+  const loadImage = (e) => {
+    const files = e.target.files[0];
+    if (files.type == "image/png" || files.type == "image/jpeg") {
+      if (files.size > 3145728) {
+        Toast.fire({
+          icon: "error",
+          title: "Waduh kegedean filenya",
+        });
+        setOpenPreview(false);
+        setFile("");
+      } else {
+        setFile(files);
+        setPreview(URL.createObjectURL(e.target.files[0]));
+        setOpenPreview(true);
+      }
+    } else {
+      Toast.fire({
+        icon: "error",
+        title: "Waduh gambarnya harus png, jpg atau jpeg",
+      });
+      setOpenPreview(false);
+      setFile("");
+    }
+  };
 
   const columns = [
     {
@@ -131,7 +157,9 @@ const RekamMedis = () => {
             className="btn btn-xs btn-danger"
             data-toggle="modal"
             data-target="#modal-konfirmasi"
-            onClick={() => setDataHapus({ id: row.id, nama: row.nama })}
+            onClick={() =>
+              setDataHapus({ id: row.id, nama: row.nama, image: row.image })
+            }
           >
             Hapus
           </button>
@@ -202,16 +230,22 @@ const RekamMedis = () => {
         optik_id: "",
         keterangan: "",
       });
+      setOpenPreview(false);
+      setFile("");
     }, 2000);
   };
 
-  const hapusRekamMedis = async (id) => {
+  const hapusRekamMedis = async (id, image) => {
     try {
-      const response = await axios.delete(URL + "api/rekam/" + id, {
-        headers: {
-          Authorization: localStorage.getItem("user-ma-token"),
-        },
-      });
+      const img = image || "image";
+      const response = await axios.delete(
+        URL_API + "api/rekam/" + id + "/" + img,
+        {
+          headers: {
+            Authorization: localStorage.getItem("user-ma-token"),
+          },
+        }
+      );
       if (response.data.success) {
         Toast.fire({
           icon: "success",
@@ -247,6 +281,7 @@ const RekamMedis = () => {
       keterangan: row.keterangan,
       ukuran_lama: row.ukuran_lama,
       tanggal: row.tanggal,
+      url: row.url,
     });
   };
 
@@ -278,9 +313,11 @@ const RekamMedis = () => {
         pasien_id: pasienId,
       };
 
-      const response = await axios.post(
-        URL + "api/rekam",
-        {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append(
+        "data",
+        JSON.stringify({
           od: od,
           os: os,
           pd_jauh: parseInt(ukuranBaru.pd_jauh),
@@ -291,27 +328,28 @@ const RekamMedis = () => {
           ukuran_lama: "n",
           optik_id: ukuranBaru.optik_id,
           pasien_id: pasienId,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("user-ma-token"),
-          },
-        }
+        })
       );
+      const response = await axios.post(URL_API + "api/rekam", formData, {
+        headers: {
+          Authorization: localStorage.getItem("user-ma-token"),
+        },
+      });
       setIsLoadingSubmit(false);
       Toast.fire({
         icon: "success",
         title: response.data.message,
       });
+      console.log(response);
       await getData();
     } catch (error) {
-      console.log(error);
+      console.log(error.response);
     }
   };
 
   const getData = async () => {
     try {
-      const response = await axios.get(URL + "api/rekam", {
+      const response = await axios.get(URL_API + "api/rekam", {
         headers: {
           Authorization: localStorage.getItem("user-ma-token"),
         },
@@ -331,7 +369,7 @@ const RekamMedis = () => {
 
   const getDataPasien = async () => {
     try {
-      const response = await axios.get(URL + "api/pasien", {
+      const response = await axios.get(URL_API + "api/pasien", {
         headers: {
           Authorization: localStorage.getItem("user-ma-token"),
         },
@@ -351,7 +389,7 @@ const RekamMedis = () => {
 
   const getDataOptik = async () => {
     try {
-      const response = await axios.get(URL + "api/optik");
+      const response = await axios.get(URL_API + "api/optik");
       setDataOptik(response.data.data);
     } catch (error) {
       console.log(error);
@@ -389,7 +427,7 @@ const RekamMedis = () => {
       text="Loading your content..."
     >
       <div className="content-wrapper">
-        <Breadcrumb title="Data Rekam Medis" />
+        <Breadcrumb title="Data Kunjungan Pasien" />
         {/* Main Content */}
         <div className="content">
           <div className="container-fluid">
@@ -402,7 +440,7 @@ const RekamMedis = () => {
                       data-toggle="modal"
                       data-target="#modal-pilih-pasien"
                     >
-                      <i className="fas fa-plus"></i> Tambah Data
+                      <i className="fas fa-plus"></i> Tambah Kunjungan Pasien
                     </button>
                     <input
                       type="text"
@@ -454,7 +492,7 @@ const RekamMedis = () => {
                   type="button"
                   className="btn btn-danger"
                   data-dismiss="modal"
-                  onClick={() => hapusRekamMedis(dataHapus.id)}
+                  onClick={() => hapusRekamMedis(dataHapus.id, dataHapus.image)}
                 >
                   Hapus
                 </button>
@@ -586,7 +624,25 @@ const RekamMedis = () => {
                         <tr>
                           <td>Keterangan</td>
                           <td>:</td>
-                          <td>{detail.keterangan}</td>
+                          <td style={{ whiteSpace: "pre-wrap" }}>
+                            {detail.keterangan}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan={3} className="text-center">
+                            Lampiran
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan={3}>
+                            <div className="d-flex justify-content-center">
+                              <img
+                                src={detail.url}
+                                className="img-fluid mx-auto shadow-lg p-3 mb-5 bg-white rounded"
+                                alt=""
+                              />
+                            </div>
+                          </td>
                         </tr>
                       </>
                     ) : (
@@ -886,9 +942,54 @@ const RekamMedis = () => {
                       className="form-control"
                       id=""
                       cols="30"
-                      rows="2"
-                      placeholder="Keluhan / Keterangan lain"
+                      rows="4"
+                      placeholder={
+                        "Nama Frame\nJenis Lensa\nHarga\nKeterangan Lain"
+                      }
                     ></textarea>
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className=" mb-0">
+                      Lampiran :
+                    </label>
+                    <input
+                      type="file"
+                      hidden
+                      accept=".jpg,.jpeg,.png"
+                      ref={uploadFile}
+                      onChange={(e) => loadImage(e)}
+                    />
+                    <div
+                      className="card"
+                      onClick={() => uploadFile.current.click()}
+                    >
+                      {openPreview == true ? (
+                        <img
+                          src={preview}
+                          alt=""
+                          className="p-3"
+                          style={{
+                            borderStyle: "dashed",
+                            borderColor: "grey",
+                            cursor: "pointer",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className="card-body bg-light d-flex justify-content-center"
+                          style={{
+                            borderStyle: "dashed",
+                            borderColor: "grey",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <div className="text-center">
+                            <i className="fas fa-file-image fa-lg"></i> <br />
+                            <div className="text-secondary">Upload File</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </form>
               </div>
@@ -899,6 +1000,7 @@ const RekamMedis = () => {
                   data-dismiss="modal"
                   data-toggle="modal"
                   data-target="#modal-pilih-pasien"
+                  onClick={() => handleClose()}
                 >
                   Back
                 </button>
@@ -911,6 +1013,7 @@ const RekamMedis = () => {
                     disabled={
                       ukuranBaru.rsph.length === 0 ||
                       ukuranBaru.lsph.length === 0 ||
+                      ukuranBaru.optik_id.length === 0 ||
                       ukuranBaru.pemeriksa.length === 0
                     }
                   >

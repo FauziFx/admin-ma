@@ -20,7 +20,8 @@
     "react-paginate": "^8.2.0",
     "react-router-dom": "^6.21.1",
     "styled-components": "^5.3.3",
-    "sweetalert2": "^11.10.5"
+    "sweetalert2": "^11.10.5",
+    "yet-another-react-lightbox": "^3.19.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

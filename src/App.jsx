@@ -100,7 +100,7 @@ function App() {
             }
           />
           <Route
-            path="rekam-medis"
+            path="kunjungan-pasien"
             element={
               <ProtectedRoute>
                 <RekamMedis />
@@ -160,7 +160,7 @@ function App() {
 const Layout = ({ isAdmin }) => {
   return (
     <div className="wrapper">
-      <Navbar />
+      {/* <Navbar /> */}
       <SideNav isAdmin={isAdmin} />
       <Outlet />
       <Footer />
