@@ -1071,13 +1071,16 @@ const Pasien = () => {
                                 </tbody>
                               </table>
                               {data.ukuran_lama === "n" && (
-                                <div className="d-flex justify-content-center">
-                                  <img
-                                    src={data.url}
-                                    alt=""
-                                    className="img-fluid my-2 text-center mx-auto shadow-lg p-2 bg-white rounded"
-                                  />
-                                </div>
+                                <>
+                                  <div>Lampiran :</div>
+                                  <div className="d-flex justify-content-center">
+                                    <img
+                                      src={data.url}
+                                      alt=""
+                                      className="img-fluid my-2 text-center mx-auto shadow-lg p-2 bg-white rounded"
+                                    />
+                                  </div>
+                                </>
                               )}
                             </div>
                           </div>
