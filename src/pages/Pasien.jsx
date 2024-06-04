@@ -683,7 +683,7 @@ const Pasien = () => {
               <div className="modal-header">
                 <h4 className="modal-title">Edit Pasien</h4>
               </div>
-              <form onSubmit={submitEditPasien}>
+              <form onSubmit={submitEditPasien} autoComplete="off">
                 <div className="modal-body modal-body-scroll py-0">
                   <LoadingOverlay
                     active={isLoadingEdit}
@@ -1132,7 +1132,7 @@ const Pasien = () => {
                   <span aria-hidden="true">×</span>
                 </button>
               </div>
-              <form onSubmit={simpanPasien}>
+              <form onSubmit={simpanPasien} autoComplete="off">
                 <div className="modal-body modal-body-scroll py-0">
                   <div className="form-group mb-0">
                     <label htmlFor="" className="mb-0">
@@ -1389,7 +1389,11 @@ const Pasien = () => {
                 <h4 className="modal-title">Ukuran Kacamata Lama</h4>
               </div>
               <div className="modal-body">
-                <form id="formUkuranKacamataLama" action="post">
+                <form
+                  id="formUkuranKacamataLama"
+                  action="post"
+                  autoComplete="off"
+                >
                   <div className="row">
                     <div className="col-1 pt-1 text-bold">OD</div>
                     <div className="col p-0">
@@ -1624,6 +1628,7 @@ const Pasien = () => {
                   id="formUkuranKacamataBaru"
                   action="post"
                   onSubmit={submitRekamMedis}
+                  autoComplete="off"
                 >
                   <div className="row">
                     <div className="col-1 pt-1 text-bold">OD</div>

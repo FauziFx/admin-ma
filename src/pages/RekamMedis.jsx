@@ -744,7 +744,11 @@ const RekamMedis = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <form id="formSubmitRekam" onSubmit={submitUkuranbaru}>
+                <form
+                  id="formSubmitRekam"
+                  onSubmit={submitUkuranbaru}
+                  autoComplete="off"
+                >
                   <table className="table table-sm">
                     <tbody>
                       <tr>
