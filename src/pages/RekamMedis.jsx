@@ -629,7 +629,10 @@ const RekamMedis = () => {
                         </tr>
                         <tr>
                           <td colSpan={3} className="text-center">
-                            Lampiran
+                            Lampiran &nbsp;
+                            <i className="text-secondary">
+                              (foto resep komputer)
+                            </i>
                           </td>
                         </tr>
                         <tr>
@@ -953,7 +956,8 @@ const RekamMedis = () => {
                   </div>
                   <div className="form-group mb-0">
                     <label htmlFor="" className=" mb-0">
-                      Lampiran :
+                      Lampiran : &nbsp;
+                      <i className="text-secondary">(foto resep komputer)</i>
                     </label>
                     <input
                       type="file"
@@ -988,7 +992,11 @@ const RekamMedis = () => {
                         >
                           <div className="text-center">
                             <i className="fas fa-file-image fa-lg"></i> <br />
-                            <div className="text-secondary">Upload File</div>
+                            <div className="text-secondary">
+                              <i>
+                                Upload File *.jpg, *.jpeg, *.png Max file 3MB
+                              </i>
+                            </div>
                           </div>
                         </div>
                       )}

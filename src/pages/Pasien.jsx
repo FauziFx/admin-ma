@@ -1810,7 +1810,7 @@ const Pasien = () => {
                   </div>
                   <div className="form-group mb-0">
                     <label htmlFor="" className=" mb-0">
-                      Lampiran :
+                      Lampiran
                     </label>
                     <input
                       type="file"
