@@ -9,6 +9,8 @@ import axios from "axios";
 import LoadingOverlay from "react-loading-overlay-ts";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/src/sweetalert2.scss";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 const Pasien = () => {
   useDocumentTitle("Data Pasien");
@@ -27,10 +29,15 @@ const Pasien = () => {
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isLoadingEdit, setIsLoadingEdit] = useState(false);
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
-  const URL = import.meta.env.VITE_API_URL;
+  const URL_API = import.meta.env.VITE_API_URL;
   const closeModalPasien = useRef(null);
   const closeModalAll = useRef(null);
   const closeModalEdit = useRef(null);
+  const uploadFile = useRef(null);
+  const [file, setFile] = useState("");
+  const [preview, setPreview] = useState("");
+  const [openPreview, setOpenPreview] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [dataOptik, setDataOptik] = useState([]);
   const [usia, setUsia] = useState("");
   const [pasienId, setPasienId] = useState(0);
@@ -173,6 +180,8 @@ const Pasien = () => {
         pemeriksa: "",
         keterangan: "",
       });
+      setOpenPreview(false);
+      setFile("");
     }, 1500);
   };
 
@@ -255,22 +264,43 @@ const Pasien = () => {
     },
   ];
 
+  const loadImage = (e) => {
+    const files = e.target.files[0];
+    if (files.type == "image/png" || files.type == "image/jpeg") {
+      if (files.size > 3145728) {
+        Toast.fire({
+          icon: "error",
+          title: "Waduh kegedean filenya",
+        });
+        setOpenPreview(false);
+        setFile("");
+      } else {
+        setFile(files);
+        setPreview(URL.createObjectURL(e.target.files[0]));
+        setOpenPreview(true);
+      }
+    } else {
+      Toast.fire({
+        icon: "error",
+        title: "Waduh gambarnya harus png, jpg atau jpeg",
+      });
+      setOpenPreview(false);
+      setFile("");
+    }
+  };
+
   const Toast = Swal.mixin({
     toast: true,
     position: "top-end",
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.onmouseenter = Swal.stopTimer;
-      toast.onmouseleave = Swal.resumeTimer;
-    },
   });
 
   const showDetail = async (row) => {
     setIsLoadingDetail(true);
     try {
-      const response = await axios.get(URL + "api/rekam/" + row.id, {
+      const response = await axios.get(URL_API + "api/rekam/" + row.id, {
         headers: {
           Authorization: localStorage.getItem("user-ma-token"),
         },
@@ -319,11 +349,15 @@ const Pasien = () => {
     };
 
     try {
-      const response = await axios.put(URL + "api/pasien/" + pasienId, data, {
-        headers: {
-          Authorization: localStorage.getItem("user-ma-token"),
-        },
-      });
+      const response = await axios.put(
+        URL_API + "api/pasien/" + pasienId,
+        data,
+        {
+          headers: {
+            Authorization: localStorage.getItem("user-ma-token"),
+          },
+        }
+      );
 
       if (response.data.success === true) {
         setIsLoadingSubmit(false);
@@ -376,7 +410,7 @@ const Pasien = () => {
     };
 
     try {
-      const response = await axios.post(URL + "api/pasien", data, {
+      const response = await axios.post(URL_API + "api/pasien", data, {
         headers: {
           Authorization: localStorage.getItem("user-ma-token"),
         },
@@ -404,7 +438,7 @@ const Pasien = () => {
         ukuranLama.ladd,
       ].join("/");
       const response = await axios.post(
-        URL + "api/rekam",
+        URL_API + "api/rekam_lama",
         {
           od: od,
           os: os,
@@ -442,9 +476,11 @@ const Pasien = () => {
         ukuranBaru.ladd,
       ].join("/");
 
-      const response = await axios.post(
-        URL + "api/rekam",
-        {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append(
+        "data",
+        JSON.stringify({
           od: od,
           os: os,
           pd_jauh: parseInt(ukuranBaru.pd_jauh),
@@ -455,13 +491,14 @@ const Pasien = () => {
           ukuran_lama: "n",
           optik_id: ukuranBaru.optik_id,
           pasien_id: pasien_id,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("user-ma-token"),
-          },
-        }
+        })
       );
+
+      const response = await axios.post(URL_API + "api/rekam", formData, {
+        headers: {
+          Authorization: localStorage.getItem("user-ma-token"),
+        },
+      });
     } catch (error) {
       console.log(error);
     }
@@ -486,7 +523,7 @@ const Pasien = () => {
 
   const getDataOptik = async () => {
     try {
-      const response = await axios.get(URL + "api/optik");
+      const response = await axios.get(URL_API + "api/optik");
       setDataOptik(response.data.data);
     } catch (error) {
       console.log(error);
@@ -495,7 +532,7 @@ const Pasien = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.get(URL + "api/pasien", {
+      const response = await axios.get(URL_API + "api/pasien", {
         headers: {
           Authorization: localStorage.getItem("user-ma-token"),
         },
@@ -514,7 +551,7 @@ const Pasien = () => {
 
   const hapusPasien = async (id) => {
     try {
-      const response = await axios.delete(URL + "api/pasien/" + id, {
+      const response = await axios.delete(URL_API + "api/pasien/" + id, {
         headers: {
           Authorization: localStorage.getItem("user-ma-token"),
         },
@@ -570,7 +607,7 @@ const Pasien = () => {
                       data-toggle="modal"
                       data-target="#modal-tambah"
                     >
-                      <i className="fas fa-plus"></i>&nbsp; Tambah Pasien
+                      <i className="fas fa-plus"></i>&nbsp; Pendaftaran Pasien
                     </button>
                     <input
                       type="text"
@@ -995,7 +1032,9 @@ const Pasien = () => {
                                       <b>Keterangan</b>
                                     </td>
                                     <td>:</td>
-                                    <td>{data.keterangan}</td>
+                                    <td style={{ whiteSpace: "pre-wrap" }}>
+                                      {data.keterangan}
+                                    </td>
                                   </tr>
                                 </tbody>
                               </table>
@@ -1031,6 +1070,24 @@ const Pasien = () => {
                                   </tr>
                                 </tbody>
                               </table>
+                              {data.ukuran_lama === "n" && (
+                                <>
+                                  <button
+                                    className="btn btn-primary btn-sm my-2"
+                                    onClick={() => setIsOpen(true)}
+                                  >
+                                    Lihat Foto Resep &nbsp;
+                                    <i className="fas fa-image"></i>
+                                  </button>
+                                  {isOpen && (
+                                    <Lightbox
+                                      open={isOpen}
+                                      close={() => setIsOpen(false)}
+                                      slides={[{ src: data.url }]}
+                                    />
+                                  )}
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1746,9 +1803,58 @@ const Pasien = () => {
                       className="form-control"
                       id=""
                       cols="30"
-                      rows="2"
-                      placeholder="Keluhan / Keterangan lain"
+                      rows="4"
+                      placeholder={
+                        "Nama Frame\nJenis Lensa\nHarga\nKeterangan Lain"
+                      }
                     ></textarea>
+                  </div>
+                  <div className="form-group mb-0">
+                    <label htmlFor="" className=" mb-0">
+                      Lampiran :
+                    </label>
+                    <input
+                      type="file"
+                      hidden
+                      accept=".jpg,.jpeg,.png"
+                      ref={uploadFile}
+                      onChange={(e) => loadImage(e)}
+                    />
+                    <div
+                      className="card"
+                      onClick={() => uploadFile.current.click()}
+                    >
+                      {openPreview == true ? (
+                        <img
+                          src={preview}
+                          alt=""
+                          className="p-3"
+                          style={{
+                            borderStyle: "dashed",
+                            borderColor: "grey",
+                            cursor: "pointer",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className="card-body bg-light d-flex justify-content-center"
+                          style={{
+                            borderStyle: "dashed",
+                            borderColor: "grey",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <div className="text-center">
+                            <i className="fas fa-file-image fa-lg"></i> <br />
+                            <div className="text-secondary">
+                              <i>
+                                Upload File *.jpg, *.jpeg, *.png Max file 3MB
+                              </i>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </form>
               </div>
@@ -1771,6 +1877,7 @@ const Pasien = () => {
                     disabled={
                       ukuranBaru.rsph.length === 0 ||
                       ukuranBaru.lsph.length === 0 ||
+                      ukuranBaru.optik_id.length === 0 ||
                       ukuranBaru.pemeriksa.length === 0
                     }
                   >

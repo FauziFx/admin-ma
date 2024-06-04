@@ -62,7 +62,7 @@ const SideNav = ({ isAdmin }) => {
       url: "",
       icon: "fa-user-md",
       dropdown: [
-        { title: "Data Pasien", url: "pasien" },
+        { title: "Pendaftaran Pasien", url: "pasien" },
         { title: "Kunjungan Pasien", url: "kunjungan-pasien" },
       ],
       clicked: false,

@@ -1014,6 +1014,7 @@ const RekamMedis = () => {
                       ukuranBaru.rsph.length === 0 ||
                       ukuranBaru.lsph.length === 0 ||
                       ukuranBaru.optik_id.length === 0 ||
+                      file.length === 0 ||
                       ukuranBaru.pemeriksa.length === 0
                     }
                   >
