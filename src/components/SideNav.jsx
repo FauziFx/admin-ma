@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
@@ -7,6 +7,7 @@ const SideNav = ({ isAdmin }) => {
   const [user, setUser] = useState({});
   const navigate = useNavigate();
   const [dataMenuFilter, setDataMenuFilter] = useState([]);
+  const pushMenu = useRef(null);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -62,7 +63,7 @@ const SideNav = ({ isAdmin }) => {
       icon: "fa-user-md",
       dropdown: [
         { title: "Data Pasien", url: "pasien" },
-        { title: "Data Rekam Medis", url: "rekam-medis" },
+        { title: "Kunjungan Pasien", url: "kunjungan-pasien" },
       ],
       clicked: false,
       role: "user",
@@ -110,7 +111,13 @@ const SideNav = ({ isAdmin }) => {
       <Link
         to={url}
         className={isActive ? "nav-link active" : "nav-link"}
-        onClick={() => navigates(id)}
+        onClick={() => {
+          navigates(id);
+          let is_mobile = /android|mobile/gi.test(navigator.userAgent);
+          if (is_mobile) {
+            pushMenu.current.click();
+          }
+        }}
       >
         <i className={"nav-icon fas " + icon}></i>
         <p>{title}</p>
@@ -145,7 +152,16 @@ const SideNav = ({ isAdmin }) => {
         <div id={title.replace(/ /g, "")} className="collapse">
           <ul className="">
             {dropdown.map((item, index) => (
-              <li className="nav-item text-light" key={index}>
+              <li
+                className="nav-item text-light"
+                key={index}
+                onClick={() => {
+                  let is_mobile = /android|mobile/gi.test(navigator.userAgent);
+                  if (is_mobile) {
+                    pushMenu.current.click();
+                  }
+                }}
+              >
                 <Link to={item.url} className="nav-link">
                   <p>{item.title}</p>
                 </Link>
@@ -162,65 +178,124 @@ const SideNav = ({ isAdmin }) => {
   };
 
   return (
-    <aside className="main-sidebar sidebar-dark-primary elevation-4">
-      {/* Brand Logo */}
-      <a href="#" className="brand-link">
-        <img
-          src="/img/AdminLTELogo.png"
-          alt="AdminLTE Logo"
-          className="brand-image img-circle elevation-3"
-          style={{ opacity: ".8" }}
-        />
-        <span className="brand-text font-weight-light">Admin MA</span>
-      </a>
-      {/* Sidebar */}
-      <div className="sidebar">
-        {/* Sidebar user panel (optional) */}
-        <div className="user-panel mt-3 pb-3 mb-3 d-flex">
-          <div className="image">
-            <img
-              src="/img/user1-128x128.jpg"
-              className="img-circle elevation-2"
-              alt="User Image"
-            />
+    <>
+      <nav className="main-header navbar navbar-expand navbar-white navbar-light">
+        {/* Left navbar links */}
+        <ul className="navbar-nav">
+          <li className="nav-item">
+            <a
+              className="nav-link"
+              data-widget="pushmenu"
+              href="#"
+              role="button"
+              ref={pushMenu}
+            >
+              <i className="fas fa-bars" />
+            </a>
+          </li>
+        </ul>
+
+        <ul className="navbar-nav ml-auto">
+          {/* Messages Dropdown Menu */}
+          <li className="nav-item dropdown">
+            <a className="nav-link" data-toggle="dropdown" href="#">
+              <i className="far fa-user" />
+            </a>
+            <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+              <Link to="/pengaturan-akun" className="dropdown-item">
+                {/* Message Start */}
+                <div className="media">
+                  <img
+                    src="/img/user1-128x128.jpg"
+                    alt="User Avatar"
+                    className="img-size-50 mr-3 img-circle"
+                  />
+                  <div className="media-body">
+                    <h3 className="dropdown-item-title">{user.name}</h3>
+                    <p className="text-sm">{user.email}</p>
+                    <p className="text-sm text-muted">
+                      <i className="fas fa-home fa-sm" /> {user.role}
+                    </p>
+                  </div>
+                </div>
+                {/* Message End */}
+              </Link>
+              <div className="dropdown-divider" />
+              <div className="dropdown-divider" />
+              <a
+                href="#"
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.replace("/");
+                }}
+                className="dropdown-item dropdown-footer"
+              >
+                <i className="fas fa-sign-out-alt"></i> Sign Out
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <aside className="main-sidebar sidebar-dark-primary elevation-4">
+        {/* Brand Logo */}
+        <a href="#" className="brand-link">
+          <img
+            src="/img/AdminLTELogo.png"
+            alt="AdminLTE Logo"
+            className="brand-image img-circle elevation-3"
+            style={{ opacity: ".8" }}
+          />
+          <span className="brand-text font-weight-light">Admin MA</span>
+        </a>
+        {/* Sidebar */}
+        <div className="sidebar">
+          {/* Sidebar user panel (optional) */}
+          <div className="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div className="image">
+              <img
+                src="/img/user1-128x128.jpg"
+                className="img-circle elevation-2"
+                alt="User Image"
+              />
+            </div>
+            <div className="info">
+              <Link to="/pengaturan-akun" className="d-block">
+                {user.name}
+              </Link>
+            </div>
           </div>
-          <div className="info">
-            <Link to="/pengaturan-akun" className="d-block">
-              {user.name}
-            </Link>
-          </div>
+          {/* Sidebar Menu */}
+          <nav className="mt-2">
+            <ul
+              className="nav nav-pills nav-sidebar flex-column"
+              data-widget="treeview"
+              role="menu"
+              data-accordion="false"
+            >
+              {dataMenuFilter.map((item) => (
+                <li className="nav-item" key={item.id}>
+                  {item.dropdown ? (
+                    <NavLinkDropdown
+                      {...item}
+                      isActive={active === item.id}
+                      onClick={navigates}
+                    />
+                  ) : (
+                    <NavLink
+                      {...item}
+                      isActive={active === item.id}
+                      onClick={navigates}
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+          {/* /.sidebar-menu */}
         </div>
-        {/* Sidebar Menu */}
-        <nav className="mt-2">
-          <ul
-            className="nav nav-pills nav-sidebar flex-column"
-            data-widget="treeview"
-            role="menu"
-            data-accordion="false"
-          >
-            {dataMenuFilter.map((item) => (
-              <li className="nav-item" key={item.id}>
-                {item.dropdown ? (
-                  <NavLinkDropdown
-                    {...item}
-                    isActive={active === item.id}
-                    onClick={navigates}
-                  />
-                ) : (
-                  <NavLink
-                    {...item}
-                    isActive={active === item.id}
-                    onClick={navigates}
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
-        {/* /.sidebar-menu */}
-      </div>
-      {/* /.sidebar */}
-    </aside>
+        {/* /.sidebar */}
+      </aside>
+    </>
   );
 };
 
