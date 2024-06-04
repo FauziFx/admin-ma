@@ -340,7 +340,6 @@ const RekamMedis = () => {
         icon: "success",
         title: response.data.message,
       });
-      console.log(response);
       await getData();
     } catch (error) {
       console.log(error.response);
