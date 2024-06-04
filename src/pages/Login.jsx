@@ -60,7 +60,7 @@ const Login = () => {
       <div className="login-box">
         <div className="login-logo">
           <a href="#">
-            <b>Admin</b> Murti Aji
+            <b>Optik</b> Murti Aji
           </a>
         </div>
         {/* /.login-logo */}
