@@ -1071,22 +1071,13 @@ const Pasien = () => {
                                 </tbody>
                               </table>
                               {data.ukuran_lama === "n" && (
-                                <>
-                                  <button
-                                    className="btn btn-primary btn-sm my-2"
-                                    onClick={() => setIsOpen(true)}
-                                  >
-                                    Lihat Foto Resep &nbsp;
-                                    <i className="fas fa-image"></i>
-                                  </button>
-                                  {isOpen && (
-                                    <Lightbox
-                                      open={isOpen}
-                                      close={() => setIsOpen(false)}
-                                      slides={[{ src: data.url }]}
-                                    />
-                                  )}
-                                </>
+                                <div className="d-flex justify-content-center">
+                                  <img
+                                    src={data.url}
+                                    alt=""
+                                    className="img-fluid my-2 text-center mx-auto shadow-lg p-2 bg-white rounded"
+                                  />
+                                </div>
                               )}
                             </div>
                           </div>
