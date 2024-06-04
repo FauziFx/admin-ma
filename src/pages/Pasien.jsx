@@ -976,7 +976,7 @@ const Pasien = () => {
                         id="accordionExample"
                         key={data.id}
                       >
-                        <div className="card">
+                        <div className="card mb-1">
                           <div
                             className="card-header p-1"
                             id={"heading-" + data.id}
